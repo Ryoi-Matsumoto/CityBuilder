@@ -1,0 +1,23 @@
+﻿<Properties StartupConfiguration="{651E761B-3309-46E8-B18F-CC50E195027D}|Default">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Engine/Source/Core/Script/Json.cpp">
+    <Files>
+      <File FileName="CityBuilder/Disposer.cs" Line="1" Column="1" />
+      <File FileName="CSharpTest/Properties/AssemblyInfo.cs" Line="1" Column="1" />
+      <File FileName="CSharpTest/Program.cs" Line="32" Column="18" />
+      <File FileName="Engine/Source/Editor/EditorInterface.h" Line="1" Column="1" />
+      <File FileName="Engine/Source/Editor/ShaderCompiler.h" Line="1" Column="1" />
+      <File FileName="Engine/Source/Editor/ShaderCompiler.cpp" Line="1" Column="1" />
+      <File FileName="Engine/Source/Editor/WorldEditor.h" Line="1" Column="1" />
+      <File FileName="Engine/Source/Editor/WorldEditor.cpp" Line="1" Column="1" />
+      <File FileName="Engine/Source/Core/Script/Parser.h" Line="482" Column="3" />
+      <File FileName="Engine/Source/Core/Script/Json.cpp" Line="112" Column="5" />
+    </Files>
+  </MonoDevelop.Ide.Workbench>
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
+  <MonoDevelop.Ide.DebuggingService.Breakpoints>
+    <BreakpointStore />
+  </MonoDevelop.Ide.DebuggingService.Breakpoints>
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+  <MultiItemStartupConfigurations />
+  <MonoDevelop.Ide.ItemProperties.Application.CSharpTest PreferredExecutionTarget="MonoDevelop.Default" />
+</Properties>

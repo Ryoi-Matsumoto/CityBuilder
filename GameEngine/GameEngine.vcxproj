@@ -1,0 +1,373 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>15.0</VCProjectVersion>
+    <ProjectGuid>{569F70BA-0E36-4E16-A6A0-F9D47042720B}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>GameEngine</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0.16299.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup>
+    <PreferredToolArchitecture>x64</PreferredToolArchitecture>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>C:\Dropbox\CityBuilder\GameEngine;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>/MP8 /Zm1000 %(AdditionalOptions)</AdditionalOptions>
+      <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
+      <DebugInformationFormat>OldStyle</DebugInformationFormat>
+    </ClCompile>
+    <Link>
+      <SubSystem>
+      </SubSystem>
+    </Link>
+    <FxCompile>
+      <ObjectFileOutput>$(OutDir)Shaders\%(Filename).cso</ObjectFileOutput>
+    </FxCompile>
+    <FxCompile>
+      <AssemblerOutput>
+      </AssemblerOutput>
+      <DisableOptimizations />
+    </FxCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>C:\Dropbox\CityBuilder\GameEngine;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>/MP8 /Zm1000 %(AdditionalOptions)</AdditionalOptions>
+      <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
+      <DebugInformationFormat>OldStyle</DebugInformationFormat>
+    </ClCompile>
+    <Link>
+      <SubSystem>
+      </SubSystem>
+      <HeapReserveSize>
+      </HeapReserveSize>
+    </Link>
+    <FxCompile>
+      <ObjectFileOutput>$(OutDir)Shaders\%(Filename).cso</ObjectFileOutput>
+    </FxCompile>
+    <FxCompile>
+      <AssemblerOutput>
+      </AssemblerOutput>
+      <DisableOptimizations />
+    </FxCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <AdditionalIncludeDirectories>C:\Dropbox\CityBuilder\GameEngine;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <LanguageStandard>stdcpp14</LanguageStandard>
+      <AdditionalOptions>/MP8 /Zm1000 %(AdditionalOptions)</AdditionalOptions>
+      <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
+      <DebugInformationFormat>OldStyle</DebugInformationFormat>
+    </ClCompile>
+    <Link>
+      <SubSystem>
+      </SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+    <FxCompile>
+      <ObjectFileOutput>$(OutDir)Shaders\%(Filename).cso</ObjectFileOutput>
+    </FxCompile>
+    <FxCompile>
+      <AssemblerOutput>
+      </AssemblerOutput>
+      <DisableOptimizations />
+      <EnableDebuggingInformation>true</EnableDebuggingInformation>
+    </FxCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <AdditionalIncludeDirectories>C:\Dropbox\CityBuilder\GameEngine;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <LanguageStandard>stdcpp14</LanguageStandard>
+      <AdditionalOptions>/MP8 /Zm1000 %(AdditionalOptions)</AdditionalOptions>
+      <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
+      <DebugInformationFormat>OldStyle</DebugInformationFormat>
+    </ClCompile>
+    <Link>
+      <SubSystem>
+      </SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <HeapReserveSize>
+      </HeapReserveSize>
+    </Link>
+    <FxCompile>
+      <ObjectFileOutput>$(OutDir)Shaders\%(Filename).cso</ObjectFileOutput>
+    </FxCompile>
+    <FxCompile>
+      <AssemblerOutput>
+      </AssemblerOutput>
+      <DisableOptimizations />
+      <EnableDebuggingInformation>true</EnableDebuggingInformation>
+    </FxCompile>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClInclude Include="Core\Public\System\Constexpr.h" />
+    <ClInclude Include="Core\Public\System\Dynamic.h" />
+    <ClInclude Include="Core\Public\Math\Using.h" />
+    <ClInclude Include="Core\Public\Math\Function.h" />
+    <ClInclude Include="Core\Public\Math\Rectangle.h" />
+    <ClInclude Include="Core\Public\Script\Json.h" />
+    <ClInclude Include="Core\Public\Script\Lexer.h" />
+    <ClInclude Include="Core\Public\Script\Parser.h" />
+    <ClInclude Include="Core\Public\System\Debug.h" />
+    <ClInclude Include="Procedural\Private\BackEnd\Private\Compiler.h" />
+    <ClInclude Include="Procedural\Private\BackEnd\Private\xbyak\xbyak.h" />
+    <ClInclude Include="Procedural\Private\BackEnd\Private\xbyak\xbyak_bin2hex.h" />
+    <ClInclude Include="Procedural\Private\BackEnd\Private\xbyak\xbyak_mnemonic.h" />
+    <ClInclude Include="Procedural\Private\BackEnd\Private\xbyak\xbyak_util.h" />
+    <ClInclude Include="Procedural\Private\FrontEnd\Private\Common.h" />
+    <ClInclude Include="Procedural\Private\FrontEnd\Private\Expression.h" />
+    <ClInclude Include="Procedural\Private\FrontEnd\Private\Utility.h" />
+    <ClInclude Include="Procedural\Private\FrontEnd\Public\FrontEnd.h" />
+    <ClInclude Include="Procedural\Private\FrontEnd\Private\Statement.h" />
+    <ClInclude Include="Procedural\Private\Intermediate.h" />
+    <ClInclude Include="Procedural\Private\Shape.h" />
+    <ClInclude Include="Rendering\Private\Hardware\Public\RHIResource.h" />
+    <ClInclude Include="Core\Public\Script\BasicLibrary.h" />
+    <ClInclude Include="Core\Public\System\FileManager.h" />
+    <ClInclude Include="Rendering\Private\FontGenerator.h" />
+    <ClInclude Include="Core\Public\System\Input.h" />
+    <ClInclude Include="Core\Public\Math\Matrix.h" />
+    <ClInclude Include="Core\Public\Math\Vector2.h" />
+    <ClInclude Include="Core\Public\Math\Vector3.h" />
+    <ClInclude Include="Core\Public\Math\Vector4.h" />
+    <ClInclude Include="Rendering\Private\Hardware\Private\DX11Buffer.h" />
+    <ClInclude Include="Rendering\Private\Hardware\Private\Common.h" />
+    <ClInclude Include="Rendering\Private\Hardware\Private\DX11Device.h" />
+    <ClInclude Include="Rendering\Private\Hardware\Private\DX11Shader.h" />
+    <ClInclude Include="Rendering\Private\Hardware\Private\DX11Viewport.h" />
+    <ClInclude Include="Rendering\Private\Hardware\Private\DX11Texture.h" />
+    <ClInclude Include="Rendering\Private\Hardware\Public\RHIDevice.h" />
+    <ClInclude Include="Core\Public\System\Template.h" />
+    <ClInclude Include="Rendering\Private\RFontLetter.h" />
+    <ClInclude Include="Rendering\Private\RShader.h" />
+    <ClInclude Include="Rendering\Public\R2DRenderer.h" />
+    <ClInclude Include="Rendering\Public\RFontLetter.h" />
+    <ClInclude Include="Rendering\Private\RResourceManager.h" />
+    <ClInclude Include="Rendering\Public\RTextBlock.h" />
+    <ClInclude Include="Rendering\Public\RViewport.h" />
+    <ClInclude Include="stdafx.h" />
+    <ClInclude Include="Test\TestWindow.h" />
+    <ClInclude Include="Test\dropbox\json11.hpp" />
+    <ClInclude Include="Test\Test.h" />
+    <ClInclude Include="UserInterface\Private\Control\UIColor.h" />
+    <ClInclude Include="UserInterface\Private\Framework\UIWinAPIMessage.h" />
+    <ClInclude Include="UserInterface\Public\Control\UIButton.h" />
+    <ClInclude Include="Rendering\Public\RTextContainer.h" />
+    <ClInclude Include="UserInterface\Public\Control\UIDockingTab.h" />
+    <ClInclude Include="UserInterface\Public\Control\Container\UIScrollView.h" />
+    <ClInclude Include="UserInterface\Public\Control\UIWorldEditor.h" />
+    <ClInclude Include="UserInterface\Public\Framework\UIControl.h" />
+    <ClInclude Include="UserInterface\Public\Control\Container\UIGrid.h" />
+    <ClInclude Include="UserInterface\Public\Control\UIImage.h" />
+    <ClInclude Include="UserInterface\Public\Framework\UICore.h" />
+    <ClInclude Include="UserInterface\Public\Framework\UIWindow.h" />
+    <ClInclude Include="UserInterface\Public\Framework\UIApplication.h" />
+    <ClInclude Include="UserInterface\Public\Control\Container\UIStackPanel.h" />
+    <ClInclude Include="UserInterface\Public\Control\UITextBlock.h" />
+    <ClInclude Include="UserInterface\Public\Control\UITreeView.h" />
+    <ClInclude Include="Rendering\Public\RManager.h" />
+    <ClInclude Include="UserInterface\Public\Control\UIWindowControl.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Core\Private\Math\Function.cpp" />
+    <ClCompile Include="Core\Private\Math\Matrix.cpp" />
+    <ClCompile Include="Core\Private\Script\Json.cpp" />
+    <ClCompile Include="Core\Private\Script\Lexer.cpp" />
+    <ClCompile Include="Core\Private\System\Dynamic.cpp" />
+    <ClCompile Include="Procedural\Private\BackEnd\Private\Compiler.cpp" />
+    <ClCompile Include="Procedural\Private\FrontEnd\Private\FrontEnd.cpp" />
+    <ClCompile Include="Procedural\Private\FrontEnd\Private\Expression.cpp" />
+    <ClCompile Include="Procedural\Private\FrontEnd\Private\Statement.cpp" />
+    <ClCompile Include="Procedural\Private\FrontEnd\Private\Utility.cpp" />
+    <ClCompile Include="stdafx.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="Test\ProcedualText.cpp" />
+    <ClCompile Include="Test\RenderingTest.cpp" />
+    <ClCompile Include="Test\TestWindow.cpp" />
+    <ClCompile Include="Test\Benchmark.cpp" />
+    <ClCompile Include="Test\CoreTest.cpp" />
+    <ClCompile Include="Test\dropbox\json11.cpp" />
+    <ClCompile Include="UserInterface\Private\Control\UIDockingTab.cpp" />
+    <ClCompile Include="UserInterface\Private\Control\Container\UIScrollView.cpp" />
+    <ClCompile Include="UserInterface\Private\Control\UIWindowControl.cpp" />
+    <ClCompile Include="UserInterface\Private\Control\UIImage.cpp" />
+    <None Include="Rendering\Private\Shaders\BoardPixel.h" />
+    <None Include="Rendering\Private\Shaders\BoardTexturePixel.h" />
+    <None Include="Rendering\Private\Shaders\BoardVertex.h" />
+    <None Include="Rendering\Private\Shaders\Common.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Core\Private\System\Debug.cpp" />
+    <ClCompile Include="Core\Private\System\FileManager.cpp" />
+    <ClCompile Include="Rendering\Private\FontGenerator.cpp" />
+    <ClCompile Include="Rendering\Private\R2DRenderer.cpp" />
+    <ClCompile Include="Rendering\Private\Hardware\Private\DX11Buffer.cpp" />
+    <ClCompile Include="Rendering\Private\Hardware\Private\DX11Device.cpp" />
+    <ClCompile Include="Rendering\Private\Hardware\Private\DX11Shader.cpp" />
+    <ClCompile Include="Rendering\Private\Hardware\Private\DX11Viewport.cpp" />
+    <ClCompile Include="Rendering\Private\Hardware\Private\DX11Texture.cpp" />
+    <ClCompile Include="Rendering\Private\RFontLetter.cpp" />
+    <ClCompile Include="Rendering\Private\RResourceManager.cpp" />
+    <ClCompile Include="Rendering\Private\RTextBlock.cpp" />
+    <ClCompile Include="Rendering\Private\RViewport.cpp" />
+    <ClCompile Include="UserInterface\Private\Control\Container\UIStackPanel.cpp" />
+    <ClCompile Include="UserInterface\Private\Control\UIButton.cpp" />
+    <ClCompile Include="UserInterface\Private\Control\UIWorldEditor.cpp" />
+    <ClCompile Include="UserInterface\Private\Framework\UIControl.cpp" />
+    <ClCompile Include="UserInterface\Private\Control\Container\UIGrid.cpp" />
+    <ClCompile Include="Rendering\Private\RTextContainer.cpp" />
+    <ClCompile Include="UserInterface\Private\Framework\UIWindow.cpp" />
+    <ClCompile Include="UserInterface\Private\Control\UITextBlock.cpp" />
+    <ClCompile Include="UserInterface\Private\Framework\UIApplication.cpp" />
+    <ClCompile Include="UserInterface\Private\Control\UITreeView.cpp" />
+    <ClCompile Include="Launch\Main.cpp" />
+    <ClCompile Include="Rendering\Private\RManager.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="Core\IdentifierLaw.txt" />
+    <Text Include="Launch\Debug.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="Rendering\Private\Shaders\BoardPixel.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
+    </FxCompile>
+    <FxCompile Include="Rendering\Private\Shaders\BoardTexturePixel.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
+    </FxCompile>
+    <FxCompile Include="Rendering\Private\Shaders\BoardVertex.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
+    </FxCompile>
+    <FxCompile Include="Rendering\Private\Shaders\DefaultPixel.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
+    </FxCompile>
+    <FxCompile Include="Rendering\Private\Shaders\DefaultVertex.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
+    </FxCompile>
+    <FxCompile Include="Rendering\Private\Shaders\LineVertex.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
+    </FxCompile>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

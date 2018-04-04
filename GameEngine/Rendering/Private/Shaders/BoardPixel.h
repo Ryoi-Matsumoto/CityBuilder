@@ -1,0 +1,7 @@
+
+
+
+float4 Color;
+
+_TEXTURE_START_
+_TEXTURE_END_

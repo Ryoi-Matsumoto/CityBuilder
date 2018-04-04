@@ -1,0 +1,24 @@
+命名法則について
+
+class
+・virtual   IName
+・Physics   PhName
+・Rendering RName
+・City      CityName
+・DirectX9  DX9Name
+・DirectX11 DX11Name
+
+・Core      先頭大文字
+
+struct      SName
+enum class        EName
+
+グローバル変数　   g_Name
+メンバー変数     
+・通常             Name
+・静的変数(static) Name
+・定数変数(const)  Name
+
+ポインタ　    pName
+配列のサイズ　NumName
+bool          HasName or IsNaming or EnableName
