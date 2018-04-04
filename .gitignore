@@ -2,5 +2,9 @@
 *bin/
 *Release/
 *Debug/
+
 CppTest/
 .vs/
+
+*.user
+*.filters
