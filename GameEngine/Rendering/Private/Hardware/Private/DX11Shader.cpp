@@ -69,7 +69,7 @@ DXGI_FORMAT GetDxgiFormat(D3D10_REGISTER_COMPONENT_TYPE Type, BYTE Mask)
 }
 
 auto CreateInputLayout(ID3D11Device* Device, ID3D11ShaderReflection* Reflection, 
-	D3D11_SHADER_DESC ShaderDesc, binarydata const& Binary)
+	D3D11_SHADER_DESC ShaderDesc, vector<char> const& Binary)
 {
 	ID3D11InputLayout* Result;
 	vector<D3D11_INPUT_ELEMENT_DESC> InputElementDescs;
@@ -156,7 +156,7 @@ uint GetTextureCount(ID3D11Device* Device, ID3D11ShaderReflection* Reflection, D
 	return TextureCount;
 }
 
-FDX11Shader::FDX11Shader(ID3D11Device* Device, ERHIShaderType ShaderType, binarydata Binary)
+FDX11Shader::FDX11Shader(ID3D11Device* Device, ERHIShaderType ShaderType, vector<char> Binary)
 	: FRHIShader(ShaderType)
 	, InputLayout(nullptr)
 	, IsConstantBuffersUpdated(false)
@@ -193,9 +193,21 @@ FDX11Shader::FDX11Shader(ID3D11Device* Device, ERHIShaderType ShaderType, binary
 FDX11Shader::~FDX11Shader()
 {
 	Shader->Release();
-	if (InputLayout)InputLayout->Release();
-	for (auto ContextBuffer : ConstantBuffers)ContextBuffer->Release();
-	for (auto ShaderResource : ShaderResources)ShaderResource->Release();
+
+	if (InputLayout)
+	{
+		InputLayout->Release();
+	}
+
+	for (auto ContextBuffer : ConstantBuffers)
+	{
+		ContextBuffer->Release();
+	}
+
+	for (auto ShaderResource : ShaderResources)
+	{
+		ShaderResource->Release();
+	}
 }
 
 void FDX11Shader::SetBuffer(uint Index, const void* Buffer)

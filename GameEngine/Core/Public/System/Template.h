@@ -10,34 +10,13 @@
 
 using namespace std;
 
-using uint = unsigned int;
-using uint8 = unsigned char;
-using uint16 = unsigned short;
-using uint32 = unsigned long;
-using uint64 = unsigned long long;
+using uint = unsigned __int32;
+using uint8 = unsigned __int8;
+using uint16 = unsigned __int16;
+using uint32 = unsigned __int32;
+using uint64 = unsigned __int64;
 
-using int8 = char;
-using int16 = short;
-using int32 = long;
-using int64 = long long;
-
-template<typename T>
-using const_ptr = const T*;
-
-struct binarydata : unique_ptr<char[]>
-{
-private:
-	uint array_size;
-
-public:
-	binarydata(uint size)
-		: unique_ptr<char[]>(new char[size])
-		, array_size(size)
-	{
-	}
-
-	uint size() const
-	{
-		return array_size;
-	}
-};
+using int8 = __int8;
+using int16 = __int16;
+using int32 = __int32;
+using int64 = __int64;

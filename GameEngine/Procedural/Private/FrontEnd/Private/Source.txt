@@ -1,0 +1,440 @@
+def rectangle:house:
+	set extrude(6)
+	fork front:
+		set spritx()
+		fork 1*:
+			wall()
+		fork 435*:
+			wall()
+		fork 54:
+			wall()
+		fork top:
+			extrude(4)
+			color(red)
+	fork right:
+		nil()
+	fork left:
+		normal("dd.jpg")
+
+def rectangle:house()
+{
+	extrude(4)
+	:front
+	{
+		spritx()
+		:1*   => wall()
+		:435* => wall()
+		:54   => wall()
+		:top
+		{
+			extrude(4)
+			color(red)
+		}
+	}
+	:right => nul()
+	:left  => normal("dd.jpg")
+
+	extrude(4)
+	{
+	1* => wall()
+	435* => wall()
+	54 => wall()
+	top:
+
+
+	}
+}
+
+shape rectangle
+{
+	float3 posx
+	float3 posy
+	float width
+	float height
+
+	conv polygon
+{
+	int t0 = pushvtx(posx)
+	int t1 = pushvtx(posy)
+	int b0 = pushvtx(posx + width)
+	int b1 = pushvtx(posy + height)
+}
+}
+
+shape quadrange
+{
+	idx upper0
+	idx upper1
+	idx lower0
+	idx lower1
+}
+
+def rectangle : extrude(float height)
+{
+	var move = normal * height
+	var u0 = pushvtx(upper0.pos + move)
+	var u1 = pushvtx(upper1.pos + move)
+	var l0 = pushvtx(lower0.pos + move)
+	var l1 = pushvtx(lower1.pos + move)
+	yield top = > new rectangle()
+	yield bottm = > new rectangle()
+	yield front = > new rectangle()
+	yield back = > new rectangle()
+	yield left = > new rectangle()
+	yield right = > new rectangle()
+}
+
+shape rectangle
+{
+	real3x4 vertexes
+}
+
+shape sides
+{
+	real3x4x4 
+}
+
+
+
+merge
+
+shape object
+{
+	
+	def merge()
+}
+
+shape primitive
+{
+	int3[] triagnles 
+}
+
+shape object : primitive
+{
+
+}
+
+var 
+
+def extrude : rectangle(real height) -> object
+{
+	unpack
+	{
+		var upper = vertexes + height
+	}
+	merge
+	{
+		part top => rectangle(upper, vertexes)
+		part bottom => rectangle()
+		part sides => sides()
+	}
+	merge()
+}
+
+def split_loop : rectangle(real unit)[rellren] -> object
+{
+	insert rectangle(vertexes)
+	
+
+
+}
+
+def material : primitive -> object
+{
+	texture(5)
+
+
+
+}
+
+
+
+extrude()
+:top => wall()
+:bottom
+{
+	extrude()
+	:top
+}
+:sides => texture(ee)
+
+
+float[] fixed_rellen(rellen[] src)
+{
+	var fixed_sum = 0
+	var ratio_sum = 0
+	for (var fork in forks)
+	{
+		if (fork.fixed)fixed_sum += fork.len
+		else ratio_sum += fork.len
+	}
+	var ratio_width = width - fixed_sum
+	float[] result
+	for (var fork in forks)
+	{
+		
+		
+	}
+
+}
+
+def rectangle:split()[rellen]
+{
+	var lens = forks.fixed(width)
+	foreach(var len in lens)
+	{
+		yield rectange(3,4,6,8)
+	}
+}
+	
+def main()
+{
+	split()
+	:3* => color(red)
+	:1* => 
+	{ 
+		color a = blue
+		color(a)
+	}
+
+	if flag && super => 43244
+	elif ft
+	{
+
+	}
+	else => extrude(542)
+}
+
+
+rectangle|rellen|lens|len  |rectangle
+float3*4 |int   |int |float|float3*4
+
+split:
+	call rellen#fixed, frameptr=0
+L0:
+	store 1, 0
+	move 2, 0, 1
+	ifjmp L1
+	ret
+L1:
+	ret
+main:
+	call split
+	color red
+	call split#yieldend
+	color blue
+	call split#yieldend
+
+A
+while(a)
+{
+B
+}
+C
+
+	A
+L0:
+	IFJMP L1, a
+	B
+	JMP L0
+L1:
+	C 
+
+
+
+
+
+
+
+def rectangle:house()
+{
+	extrude(6)
+	:front
+	{		
+		splitx()
+		:3*
+		{
+			sprity()
+			:1* => 
+			:3*
+		
+		}
+		:2* => dent(4)
+		:2  => wall()
+	}
+}
+
+extrude(6)
+{
+	3 -> r
+}
+
+def rectangle:house()
+{
+	extrude(6)	
+	{
+	front:
+		splitx()
+		{
+		1*:
+		1*:
+		4:
+			splity()
+			{
+			5:wall()
+			}
+		4:wall()
+		3:dent(4)
+		0.1:wall()
+		}
+	top:
+	other:wall()
+	}
+}
+
+def rectangle:house()
+{
+	extrude(6):	
+	fork front:
+		splitx()
+		fork 1*
+			wall()
+		fork 545*
+			wall()
+	fork top:
+		extrude(44)
+}
+
+def rectangle:house:
+	set extrude(6)
+	fork front:
+		set spritx()
+		fork 1*:
+			wall()
+		fork 435*:
+			wall()
+		fork 54:
+			wall()
+	fork top:
+		extrude(4)
+		color(red)
+
+def for : empty(array reals) -> real
+{
+	for a forks 
+	yield(4)
+}
+
+def sum = empty(symbol name, real[] array)
+{	
+	im result = 0
+	for(x : array)
+		resuly += if array.size = 1 else 
+	gen shape{real:[name] = array[0] + sum(x, array[1:]) => x }
+	{
+		result += yield()
+	}
+}
+
+yield(symbol)
+yield(int inded)
+
+def sprit = rectangle:(real height)[real]
+{
+	def relaed_sum = sumeach(forks) => x > 0 ? x : relative_lenght * x / relative_sum
+	def moves = argsum(_sum
+	def lenghts = argsumhts)
+	def relative_lenght = tive_sum = sum(forks) => x < 0 ? x : 0
+	def lenghts = re
+	shape scope { real : [symbol]}
+	gen scope{[symbol]:}
+	yield(top)
+}
+
+struct rectangle
+{
+	real3x4 vertexes
+}
+
+struct cube
+{
+	real3 position
+	real3 size
+}
+
+def extrude : rectangle(real height)
+{
+	gen rectangle(position, ) => yield(top)
+	gen cube() => yield(sides)
+}
+
+def apart : cube()
+{
+	yield(top)
+	yield(bottom)
+}
+
+def split : rectangle(real height)
+{
+	push_vertex(21)
+	push_index(ad, ds)
+	push_shape(wall)
+
+
+	set_textude(wall, aa)
+}
+
+def split_loop : rectangle(real count) -> object
+{
+	gen rectangle()
+	{
+		yield(de)
+		push_object()
+	}
+	push_object(for(forks) => x )
+}
+
+struct primitive
+{
+	real3xN vertexes
+	int2xN indexes
+}
+
+def realize : cube() -> primitive
+{
+	def vertexes = [position, position + size.x, position + size.y  position + size]
+	def indexes = 
+	gen primitive(vertexes, indexes)
+}
+
+def merge : primitive
+
+struct material
+{
+	symbol material
+}
+
+def material : primitive(symbol materil) -> material
+{
+	
+}
+
+shape rectangle : primitive
+shape primitive : material
+shape material  : object
+shape object    : model
+
+def object
+{
+	object obj
+	objindex[] indexes
+}
+
+def object
+{
+	object[] objects
+}
+
+
+realize -> primitive
+set_mat -> material

@@ -92,7 +92,11 @@ void* FDX11Texture::Map(uint* OutRowSize)
 	D3D11_MAPPED_SUBRESOURCE MappedResource;
 	HR(Context->Map(Texture, 0, D3D11_MAP_WRITE_DISCARD, 0, &MappedResource));
 
-	if(OutRowSize)*OutRowSize = MappedResource.RowPitch;	
+	if (OutRowSize)
+	{
+		*OutRowSize = MappedResource.RowPitch;
+	}
+
 	return MappedResource.pData;
 }
 

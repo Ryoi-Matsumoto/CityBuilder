@@ -8,7 +8,7 @@ FR2DRenderer::FR2DRenderer(FRHIDevice* Device, FRResourceManager* ResourceManage
 	: Device(Device)
 	, ResourceManager(ResourceManager)
 {
-	float Vertices[4][5] =
+	float RectangleVertices[4][5] =
 	{
 		{ 0.0f, 1.0f, 1.0f, 0.0f, 1.0f },
 		{ 0.0f, 0.0f, 1.0f, 0.0f, 0.0f },
@@ -16,7 +16,20 @@ FR2DRenderer::FR2DRenderer(FRHIDevice* Device, FRResourceManager* ResourceManage
 		{ 1.0f, 0.0f, 1.0f, 1.0f, 0.0f }
 	};
 
-	VertexBuffer = Device->CreateVertexBuffer(Vertices, sizeof(float) * 5, 4);
+	RectangleVertexBuffer = Device->CreateVertexBuffer(RectangleVertices, sizeof(float) * 5, 4);
+
+	float TriangleVertices[6][5] =
+	{
+		{ 0.0f, 1.0f, 1.0f, 0.0f, 1.0f },
+		{ 0.5f, 0.0f, 1.0f, 0.5f, 0.5f },
+		{ 1.0f, 1.0f, 1.0f, 1.0f, 1.0f },
+
+		{ 0.0f, 0.0f, 1.0f, 0.0f, 0.0f },
+		{ 1.0f, 0.0f, 1.0f, 1.0f, 0.0f },
+		{ 0.5f, 1.0f, 1.0f, 0.5f, 1.0f }
+	};
+
+	TriangleVertexBuffer = Device->CreateVertexBuffer(TriangleVertices, sizeof(float) * 5, 6);
 }
 
 void FR2DRenderer::SetDrawArea(intrect Area)
@@ -43,7 +56,7 @@ void FR2DRenderer::DrawTexture(FRHITexture* Texture, intrect Rectangle, float4 C
 
 	SRHIDrawContent Content;
 	Content.PrimitiveTopology = ERHIPrimitiveTopology::TriangleStrip;
-	Content.VertexBuffer = VertexBuffer.get();
+	Content.VertexBuffer = RectangleVertexBuffer.get();
 	Content.VertexShader = ResourceManager->GetShaderBoardVertex(VSBuffer);
 	Content.PixelShader = ResourceManager->GetShaderBoardTexturePixel(PSBuffer);
 	Device->Draw(Content);
@@ -58,8 +71,26 @@ void FR2DRenderer::DrawRectangle(intrect Rectangle, float4 Color)
 
 	SRHIDrawContent Content;
 	Content.PrimitiveTopology = ERHIPrimitiveTopology::TriangleStrip;
-	Content.VertexBuffer = VertexBuffer.get();
+	Content.VertexBuffer = RectangleVertexBuffer.get();
 	Content.VertexShader = ResourceManager->GetShaderBoardVertex(VSBuffer);
 	Content.PixelShader = ResourceManager->GetShaderBoardPixel(PSBuffer);
+	Device->Draw(Content);
+}
+
+void FR2DRenderer::DrawTriangle(intrect Rectangle, float4 Color, bool Upside)
+{
+	auto VSBuffer = GetBufferBoardVertex(Rectangle, ScreenSize);
+
+	FRResourceManager::SRBufferBoardPixel PSBuffer;
+	PSBuffer.Color = Color;
+
+	SRHIDrawContent Content;
+	Content.PrimitiveTopology = ERHIPrimitiveTopology::TriangleList;
+	Content.VertexBuffer = TriangleVertexBuffer.get();
+	Content.VertexShader = ResourceManager->GetShaderBoardVertex(VSBuffer);
+	Content.PixelShader = ResourceManager->GetShaderBoardPixel(PSBuffer);
+	Content.VertexCount = 3;
+	if (!Upside)
+		Content.StartVertex = 3;
 	Device->Draw(Content);
 }

@@ -27,7 +27,9 @@ inline D3D11_RASTERIZER_DESC GetDefaultRasterizerDesc()
 	ZeroMemory(&Result, sizeof(D3D11_RASTERIZER_DESC));
 	Result.CullMode = D3D11_CULL_BACK;
 	Result.FillMode = D3D11_FILL_SOLID;
-	Result.DepthClipEnable = TRUE;
+	Result.DepthClipEnable = true;
+	Result.MultisampleEnable = false;
+	Result.AntialiasedLineEnable = false;
 	return Result;
 }
 
@@ -43,18 +45,18 @@ FDX11Device::FDX11Device()
 
 	HR(D3D11CreateDevice
 	(
-		nullptr,					// プライマリ・ディスプレイ・アダプタ
+		nullptr,			// プライマリ・ディスプレイ・アダプタ
 		D3D_DRIVER_TYPE_HARDWARE,	// 3Dハードウェアアクセラレーション
-		0,							// ソフトウェアドライバは不要
-		CreateDeviceFlags,			// デバッグフラグ
-		nullptr,					// 最大のフィーチャレベルを選択
-		0,							// 上記引数の配列の数
-		D3D11_SDK_VERSION,			// SDKバージョン
-		&Device,					// 作成されたデバイス
-		&FeatureLevel,				// 対応する最大のフィーチャーレベル
-		&Context					// 作成されたデバイスコンテキスト
+		0,				// ソフトウェアドライバは不要
+		CreateDeviceFlags,		// デバッグフラグ
+		nullptr,			// 最大のフィーチャレベルを選択
+		0,				// 上記引数の配列の数
+		D3D11_SDK_VERSION,		// SDKバージョン
+		&Device,			// 作成されたデバイス
+		&FeatureLevel,			// 対応する最大のフィーチャーレベル
+		&Context			// 作成されたデバイスコンテキスト
 	));
-
+	
 	if (FeatureLevel < D3D_FEATURE_LEVEL_11_0)
 	{
 		FDebugger::OutputError(L"This computer does not correspond DirectX11");
@@ -63,7 +65,7 @@ FDX11Device::FDX11Device()
 	HR(Device->CheckMultisampleQualityLevels
 	(
 		RenderTargetFormat,	// テクスチャー フォーマット
-		4,					// マルチサンプリング時のサンプル数
+		4,			// マルチサンプリング時のサンプル数
 		&MsaaQuality		// 対応可能な品質レベル
 	));
 	assert(MsaaQuality > 0);
@@ -200,7 +202,10 @@ void FDX11Device::Draw(const SRHIDrawContent& Content)
 	}
 	else
 	{
-		Context->Draw(Content.VertexBuffer->GetVertexCount(), 0);
+		if(Content.VertexCount)
+			Context->Draw(Content.VertexCount, Content.StartVertex);
+		else
+			Context->Draw(Content.VertexBuffer->GetVertexCount(), Content.StartVertex);
 	}
 }
 
@@ -214,7 +219,7 @@ unique_ptr<FRHIIndexBuffer> FDX11Device::CreateIndexBuffer(uint* Indexes, uint I
 	return make_unique<FDX11IndexBuffer>(Device, Indexes, IndexCount);
 }
 
-unique_ptr<FRHIShader> FDX11Device::CreateShader(ERHIShaderType ShaderType, binarydata Binary)
+unique_ptr<FRHIShader> FDX11Device::CreateShader(ERHIShaderType ShaderType, vector<char> Binary)
 {
 	return make_unique<FDX11Shader>(Device, ShaderType, move(Binary));
 }

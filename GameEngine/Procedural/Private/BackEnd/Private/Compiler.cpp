@@ -151,7 +151,7 @@ private:
 
 	bool IsNeedless(regptr VirtualRegister, regptr ProgramCount)
 	{
-		return VRegisters[VirtualRegister].ExpirationProgramCount == ProgramCount;
+		return VRegisters[VirtualRegister].ExpirationProgramCount <= ProgramCount;
 	}
 
 public:
@@ -224,6 +224,14 @@ public:
 	array<SOperandSet, 2> Get2Operands(SRegisterType Type, regptr Operand0, regptr Operand1, regptr Operand2, uint ProgramCount)
 	{
 		array<SOperandSet, 2> Result;
+		Result[0] = Assign(Operand0, Type);
+		Result[1] = Use(Operand2, ProgramCount);
+		return Result;
+	}
+
+	array<SOperandSet, 2> GetCompressed2Operands(SRegisterType Type, regptr Operand0, regptr Operand1, regptr Operand2, uint ProgramCount)
+	{
+		array<SOperandSet, 2> Result;
 		Result[0] = AssignAndMove(Operand0, Operand1, ProgramCount, Type);
 		Result[1] = Use(Operand2, ProgramCount);
 		return Result;
@@ -239,181 +247,253 @@ public:
 	}
 };
 
-SRegisterType GetDestRegisterType(EOperationType Type)
+SRegisterType GetDestRegisterType(EVectorType Type)
 {
 	switch (Type)
 	{
-	case EOperationType::II:return SRegisterType(false, 1);
-	case EOperationType::I2I2:return SRegisterType(false, 2);
-	case EOperationType::I2I:return SRegisterType(false, 2);
-	case EOperationType::I3I:return SRegisterType(false, 3);
-	case EOperationType::I3I3:return SRegisterType(false, 3);
-	case EOperationType::I3x4I3x4:return SRegisterType(false, 12);
-	case EOperationType::I3x4I:return SRegisterType(false, 12);
-	case EOperationType::I3x8I3x8:return SRegisterType(false, 24);
-	case EOperationType::I3x8I:return SRegisterType(false, 24);
-	case EOperationType::I3x4I3:return SRegisterType(false, 12);
-	case EOperationType::I3x8I3:return SRegisterType(false, 24);
-	case EOperationType::I3x8I3x4:return SRegisterType(false, 24);
-	case EOperationType::RR:return SRegisterType(true, 1);
-	case EOperationType::R2R2:return SRegisterType(true, 2);
-	case EOperationType::R2R:return SRegisterType(true, 2);
-	case EOperationType::R3R:return SRegisterType(true, 3);
-	case EOperationType::R3R3:return SRegisterType(true, 3);
-	case EOperationType::R3x4R3x4:return SRegisterType(true, 12);
-	case EOperationType::R3x4R:return SRegisterType(true, 12);
-	case EOperationType::R3x8R3x8:return SRegisterType(true, 24);
-	case EOperationType::R3x8R:return SRegisterType(true, 24);
-	case EOperationType::R3x4R3:return SRegisterType(true, 12);
-	case EOperationType::R3x8R3:return SRegisterType(true, 24);
-	case EOperationType::R3x8R3x4:return SRegisterType(true, 24);
-	case EOperationType::BB:return SRegisterType(true, 1);
+	case EVectorType::II:return SRegisterType(false, 1);
+	case EVectorType::I2I2:return SRegisterType(false, 2);
+	case EVectorType::I2I:return SRegisterType(false, 2);
+	case EVectorType::I3I:return SRegisterType(false, 3);
+	case EVectorType::I3I3:return SRegisterType(false, 3);
+	case EVectorType::I3x4I3x4:return SRegisterType(false, 12);
+	case EVectorType::I3x4I:return SRegisterType(false, 12);
+	case EVectorType::I3x8I3x8:return SRegisterType(false, 24);
+	case EVectorType::I3x8I:return SRegisterType(false, 24);
+	case EVectorType::I3x4I3:return SRegisterType(false, 12);
+	case EVectorType::I3x8I3:return SRegisterType(false, 24);
+	case EVectorType::I3x8I3x4:return SRegisterType(false, 24);
+	case EVectorType::RR:return SRegisterType(true, 1);
+	case EVectorType::R2R2:return SRegisterType(true, 2);
+	case EVectorType::R2R:return SRegisterType(true, 2);
+	case EVectorType::R3R:return SRegisterType(true, 3);
+	case EVectorType::R3R3:return SRegisterType(true, 3);
+	case EVectorType::R3x4R3x4:return SRegisterType(true, 12);
+	case EVectorType::R3x4R:return SRegisterType(true, 12);
+	case EVectorType::R3x8R3x8:return SRegisterType(true, 24);
+	case EVectorType::R3x8R:return SRegisterType(true, 24);
+	case EVectorType::R3x4R3:return SRegisterType(true, 12);
+	case EVectorType::R3x8R3:return SRegisterType(true, 24);
+	case EVectorType::R3x8R3x4:return SRegisterType(true, 24);
+	case EVectorType::BB:return SRegisterType(true, 1);
 	default:assert(false); break;
 	}
 }
 
-#define VECTOR_CALC(CALC, BLCST, MOVH) \
-case EOperationType::II: \
-	gen.CALC(Operands[0].SingleVector, Operands[1].SingleVector, Operands[2].SingleVector); \
-	break; \
-case EOperationType::I2I2: \
-	/* 0bit              256bit */ \
-	/* x y na na na na na na    */ \
-	gen.CALC(Operands[0].SingleVector, Operands[1].SingleVector, Operands[2].SingleVector); \
-	break; \
-case EOperationType::I2I: \
-	gen.BLCST(Operands[2].SingleVector, Operands[2].SingleVector); \
-	gen.CALC(Operands[0].SingleVector, Operands[1].SingleVector, Operands[2].SingleVector); \
-	break; \
-case EOperationType::I3I3: \
-	/* x y z na na na na na */ \
-	gen.CALC(Operands[0].SingleVector, Operands[1].SingleVector, Operands[2].SingleVector); \
-	break; \
-case EOperationType::I3I: \
-	gen.BLCST(Operands[2].SingleVector, Operands[2].SingleVector); \
-	gen.CALC(Operands[0].SingleVector, Operands[1].SingleVector, Operands[2].SingleVector); \
-	break; \
-case EOperationType::I3x4I3x4: \
-	/* ymm0 ax ay az na bx by bz na */ \
-	/* ymm1 cx cy cz na dx dy dz na */ \
-	gen.CALC(Operands[0].MultiVector[0], Operands[1].MultiVector[0], Operands[2].MultiVector[0]); \
-	gen.CALC(Operands[0].MultiVector[1], Operands[1].MultiVector[1], Operands[2].MultiVector[1]); \
-	break; \
-case EOperationType::I3x4I: \
-	gen.BLCST(Operands[2].SingleVector, Operands[2].SingleVector); \
-	gen.CALC(Operands[0].MultiVector[0], Operands[1].MultiVector[0], Operands[2].SingleVector); \
-	gen.CALC(Operands[0].MultiVector[1], Operands[1].MultiVector[1], Operands[2].SingleVector); \
-	break; \
-case EOperationType::I3x4I3: \
-	gen.MOVH(Operands[2].SingleVector, Operands[2].SingleVector); \
-	gen.CALC(Operands[0].MultiVector[0], Operands[1].MultiVector[0], Operands[2].SingleVector); \
-	gen.CALC(Operands[0].MultiVector[1], Operands[1].MultiVector[1], Operands[2].SingleVector); \
-	break; \
-case EOperationType::I3x8I3x8: \
-	/* ymm0 ax ay az na bx by bz na */ \
-	/* ymm1 cx cy cz na dx dy dz na */ \
-	/* ymm2 ex ey ez na fx fy fz na */ \
-	/* ymm3 gx gy gz na hx hy hz na */ \
-	gen.CALC(Operands[0].MultiVector[0], Operands[1].MultiVector[0], Operands[2].MultiVector[0]); \
-	gen.CALC(Operands[0].MultiVector[1], Operands[1].MultiVector[1], Operands[2].MultiVector[1]); \
-	gen.CALC(Operands[0].MultiVector[2], Operands[1].MultiVector[2], Operands[2].MultiVector[2]); \
-	gen.CALC(Operands[0].MultiVector[3], Operands[1].MultiVector[3], Operands[2].MultiVector[3]); \
-	break; \
-case EOperationType::I3x8I: \
-	gen.BLCST(Operands[2].SingleVector, Operands[2].SingleVector); \
-	gen.CALC(Operands[0].MultiVector[0], Operands[1].MultiVector[0], Operands[2].SingleVector); \
-	gen.CALC(Operands[0].MultiVector[1], Operands[1].MultiVector[1], Operands[2].SingleVector); \
-	gen.CALC(Operands[0].MultiVector[2], Operands[1].MultiVector[2], Operands[2].SingleVector); \
-	gen.CALC(Operands[0].MultiVector[3], Operands[1].MultiVector[3], Operands[2].SingleVector); \
-	break; \
-case EOperationType::I3x8I3: \
-	gen.MOVH(Operands[2].SingleVector, Operands[2].SingleVector); \
-	gen.CALC(Operands[0].MultiVector[0], Operands[1].MultiVector[0], Operands[2].SingleVector); \
-	gen.CALC(Operands[0].MultiVector[1], Operands[1].MultiVector[1], Operands[2].SingleVector); \
-	gen.CALC(Operands[0].MultiVector[2], Operands[1].MultiVector[2], Operands[2].SingleVector); \
-	gen.CALC(Operands[0].MultiVector[3], Operands[1].MultiVector[3], Operands[2].SingleVector); \
-	break; \
-case EOperationType::I3x8I3x4: \
-	gen.CALC(Operands[0].MultiVector[0], Operands[1].MultiVector[0], Operands[2].MultiVector[0]); \
-	gen.CALC(Operands[0].MultiVector[1], Operands[1].MultiVector[1], Operands[2].MultiVector[1]); \
-	gen.CALC(Operands[0].MultiVector[2], Operands[1].MultiVector[2], Operands[2].MultiVector[0]); \
-	gen.CALC(Operands[0].MultiVector[3], Operands[1].MultiVector[3], Operands[2].MultiVector[1]); \
-	break; \
+using MnemonicSIMDOperand2 = void (Xbyak::CodeGenerator::*)(const Xbyak::Xmm&, const Xbyak::Operand&);
+using MnemonicSIMDOperand3Int = void (Xbyak::CodeGenerator::*)(const Xbyak::Xmm&, const Xbyak::Xmm&, const Xbyak::Operand&);
+using MnemonicSIMDOperand3Float = void (Xbyak::CodeGenerator::*)(const Xbyak::Xmm&, const Xbyak::Operand&, const Xbyak::Operand&);
+using MnemonicOperand2 = void (Xbyak::CodeGenerator::*)(const Xbyak::Operand&, const Xbyak::Operand&);
 
-#define VECTOR_MNS_CALC(CALC, BLCST, MOVH) \
-case EOperationType::II: \
-	gen.CALC(Operands[0].SingleVector, Operands[1].SingleVector, MinusVector); \
-	break; \
-case EOperationType::I2I2: \
-	/* 0bit              256bit */ \
-	/* x y na na na na na na    */ \
-	gen.CALC(Operands[0].SingleVector, Operands[1].SingleVector, MinusVector); \
-	break; \
-case EOperationType::I3I3: \
-	/* x y z na na na na na */ \
-	gen.CALC(Operands[0].SingleVector, Operands[1].SingleVector, MinusVector); \
-	break; \
-case EOperationType::I3x4I3x4: \
-	/* ymm0 ax ay az na bx by bz na */ \
-	/* ymm1 cx cy cz na dx dy dz na */ \
-	gen.CALC(Operands[0].MultiVector[0], Operands[1].MultiVector[0], MinusVector); \
-	gen.CALC(Operands[0].MultiVector[1], Operands[1].MultiVector[1], MinusVector); \
-	break; \
-case EOperationType::I3x8I3x8: \
-	/* ymm0 ax ay az na bx by bz na */ \
-	/* ymm1 cx cy cz na dx dy dz na */ \
-	/* ymm2 ex ey ez na fx fy fz na */ \
-	/* ymm3 gx gy gz na hx hy hz na */ \
-	gen.CALC(Operands[0].MultiVector[0], Operands[1].MultiVector[0], MinusVector); \
-	gen.CALC(Operands[0].MultiVector[1], Operands[1].MultiVector[1], MinusVector); \
-	gen.CALC(Operands[0].MultiVector[2], Operands[1].MultiVector[2], MinusVector); \
-	gen.CALC(Operands[0].MultiVector[3], Operands[1].MultiVector[3], MinusVector); \
-	break; \
+template<typename T>
+bool GenerateVectorCalculationCode
+(
+	Xbyak::CodeGenerator* Generator,
+	const array<SOperandSet, 3>& Operands,
+	EVectorType Type,
+	T Calculation,
+	MnemonicSIMDOperand2 Bloadcast
+)
+{
+	switch (Type)
+	{
+	case EVectorType::II:
+		(Generator->*Calculation)(Operands[0].SingleVector, Operands[1].SingleVector, Operands[2].SingleVector);
+		return true;
+	case EVectorType::I2I2:
+		/* 0bit              256bit */
+		/* x y na na na na na na    */
+		(Generator->*Calculation)(Operands[0].SingleVector, Operands[1].SingleVector, Operands[2].SingleVector);
+		return true;
+	case EVectorType::I2I:
+		(Generator->*Bloadcast)(Operands[2].SingleVector, Operands[2].SingleVector);
+		(Generator->*Calculation)(Operands[0].SingleVector, Operands[1].SingleVector, Operands[2].SingleVector);
+		return true;
+	case EVectorType::I3I3:
+		/* x y z na na na na na */
+		(Generator->*Calculation)(Operands[0].SingleVector, Operands[1].SingleVector, Operands[2].SingleVector);
+		return true;
+	case EVectorType::I3I:
+		(Generator->*Bloadcast)(Operands[2].SingleVector, Operands[2].SingleVector);
+		(Generator->*Calculation)(Operands[0].SingleVector, Operands[1].SingleVector, Operands[2].SingleVector);
+		return true;
+	case EVectorType::I3x4I3x4:
+		/* ymm0 ax ay az na bx by bz na */
+		/* ymm1 cx cy cz na dx dy dz na */
+		(Generator->*Calculation)(Operands[0].MultiVector[0], Operands[1].MultiVector[0], Operands[2].MultiVector[0]);
+		(Generator->*Calculation)(Operands[0].MultiVector[1], Operands[1].MultiVector[1], Operands[2].MultiVector[1]);
+		return true;
+	case EVectorType::I3x4I:
+		(Generator->*Bloadcast)(Operands[2].SingleVector, Operands[2].SingleVector);
+		(Generator->*Calculation)(Operands[0].MultiVector[0], Operands[1].MultiVector[0], Operands[2].SingleVector);
+		(Generator->*Calculation)(Operands[0].MultiVector[1], Operands[1].MultiVector[1], Operands[2].SingleVector);
+		return true;
+	case EVectorType::I3x4I3:
+		Generator->movlhps(Operands[2].SingleVector, Operands[2].SingleVector);
+		(Generator->*Calculation)(Operands[0].MultiVector[0], Operands[1].MultiVector[0], Operands[2].SingleVector);
+		(Generator->*Calculation)(Operands[0].MultiVector[1], Operands[1].MultiVector[1], Operands[2].SingleVector);
+		return true;
+	case EVectorType::I3x8I3x8:
+		/* ymm0 ax ay az na bx by bz na */
+		/* ymm1 cx cy cz na dx dy dz na */
+		/* ymm2 ex ey ez na fx fy fz na */
+		/* ymm3 gx gy gz na hx hy hz na */
+		(Generator->*Calculation)(Operands[0].MultiVector[0], Operands[1].MultiVector[0], Operands[2].MultiVector[0]);
+		(Generator->*Calculation)(Operands[0].MultiVector[1], Operands[1].MultiVector[1], Operands[2].MultiVector[1]);
+		(Generator->*Calculation)(Operands[0].MultiVector[2], Operands[1].MultiVector[2], Operands[2].MultiVector[2]);
+		(Generator->*Calculation)(Operands[0].MultiVector[3], Operands[1].MultiVector[3], Operands[2].MultiVector[3]);
+		return true;
+	case EVectorType::I3x8I:
+		(Generator->*Bloadcast)(Operands[2].SingleVector, Operands[2].SingleVector);
+		(Generator->*Calculation)(Operands[0].MultiVector[0], Operands[1].MultiVector[0], Operands[2].SingleVector);
+		(Generator->*Calculation)(Operands[0].MultiVector[1], Operands[1].MultiVector[1], Operands[2].SingleVector);
+		(Generator->*Calculation)(Operands[0].MultiVector[2], Operands[1].MultiVector[2], Operands[2].SingleVector);
+		(Generator->*Calculation)(Operands[0].MultiVector[3], Operands[1].MultiVector[3], Operands[2].SingleVector);
+		return true;
+	case EVectorType::I3x8I3:
+		Generator->movlhps(Operands[2].SingleVector, Operands[2].SingleVector);
+		(Generator->*Calculation)(Operands[0].MultiVector[0], Operands[1].MultiVector[0], Operands[2].SingleVector);
+		(Generator->*Calculation)(Operands[0].MultiVector[1], Operands[1].MultiVector[1], Operands[2].SingleVector);
+		(Generator->*Calculation)(Operands[0].MultiVector[2], Operands[1].MultiVector[2], Operands[2].SingleVector);
+		(Generator->*Calculation)(Operands[0].MultiVector[3], Operands[1].MultiVector[3], Operands[2].SingleVector);
+		return true;
+	case EVectorType::I3x8I3x4:
+		(Generator->*Calculation)(Operands[0].MultiVector[0], Operands[1].MultiVector[0], Operands[2].MultiVector[0]);
+		(Generator->*Calculation)(Operands[0].MultiVector[1], Operands[1].MultiVector[1], Operands[2].MultiVector[1]);
+		(Generator->*Calculation)(Operands[0].MultiVector[2], Operands[1].MultiVector[2], Operands[2].MultiVector[0]);
+		(Generator->*Calculation)(Operands[0].MultiVector[3], Operands[1].MultiVector[3], Operands[2].MultiVector[1]);
+		return true;
+	}
+	return false;
+}
 
-#define GP2_CALC(GPCALC, VICALC, VIBLCST, VFCALC, VFBLCST, VMOVH) \
-if (Ins.Type == EOperationType::II) \
-{ \
-	auto Operands = Table.Get2Operands(DestType, Ins.Operand0, Ins.Operand1, Ins.Operand2, i); \
-	gen.GPCALC(Operands[0].SingleInt, Operands[1].SingleInt); \
-} \
-else \
-{ \
-	auto Operands = Table.Get3Operands(DestType, Ins.Operand0, Ins.Operand1, Ins.Operand2, i); \
-	switch (Ins.Type) \
-	{ \
-	VECTOR_CALC(VICALC, VIBLCST, VMOVH); \
-	default: \
-		switch ((EOperationType)((uint)Ins.Type - (uint)EOperationType::RR)) \
-		{ \
-		VECTOR_CALC(VFCALC, VFBLCST, VMOVH); \
-		default: \
-			assert(false); \
-		} \
-	} \
-} \
+template<typename T>
+bool GenerateVectorFlipSignCode
+(
+	Xbyak::CodeGenerator* Generator,
+	const array<SOperandSet, 2>& Operands,
+	EVectorType Type,
+	const Xbyak::Xmm& MinusVector,
+	T Calculation
+)
+{
+	switch (Type)
+	{
+	case EVectorType::II:
+		(Generator->*Calc)(Operands[0].SingleVector, Operands[1].SingleVector, MinusVector);
+		return true;
+	case EVectorType::I2I2:
+		/* 0bit              256bit */
+		/* x y na na na na na na    */
+		(Generator->*Calc)(Operands[0].SingleVector, Operands[1].SingleVector, MinusVector);
+		return true;
+	case EVectorType::I3I3:
+		/* x y z na na na na na */
+		(Generator->*Calc)(Operands[0].SingleVector, Operands[1].SingleVector, MinusVector);
+		return true;
+	case EVectorType::I3x4I3x4:
+		/* ymm0 ax ay az na bx by bz na */
+		/* ymm1 cx cy cz na dx dy dz na */
+		(Generator->*Calc)(Operands[0].MultiVector[0], Operands[1].MultiVector[0], MinusVector);
+		(Generator->*Calc)(Operands[0].MultiVector[1], Operands[1].MultiVector[1], MinusVector);
+		return true;
+	case EVectorType::I3x8I3x8:
+		/* ymm0 ax ay az na bx by bz na */
+		/* ymm1 cx cy cz na dx dy dz na */
+		/* ymm2 ex ey ez na fx fy fz na */
+		/* ymm3 gx gy gz na hx hy hz na */
+		(Generator->*Calc)(Operands[0].MultiVector[0], Operands[1].MultiVector[0], MinusVector);
+		(Generator->*Calc)(Operands[0].MultiVector[1], Operands[1].MultiVector[1], MinusVector);
+		(Generator->*Calc)(Operands[0].MultiVector[2], Operands[1].MultiVector[2], MinusVector);
+		(Generator->*Calc)(Operands[0].MultiVector[3], Operands[1].MultiVector[3], MinusVector);
+		return true;
+	}
+	return false;
+}
 
-#define GP3_CALC(GPCALC, VICALC, VIBLCST, VFCALC, VFBLCST, VMOVH) \
-auto Operands = Table.Get3Operands(DestType, Ins.Operand0, Ins.Operand1, Ins.Operand2, i); \
-switch (Ins.Type) \
-{ \
-case EOperationType::II: \
-	gen.GPCALC(Operands[0].SingleInt, Operands[1].SingleInt, Operands[2].SingleInt); \
-	break; \
-VECTOR_CALC(VICALC, VIBLCST, VMOVH); \
-default: \
-	switch ((EOperationType)((uint)Ins.Type - (uint)EOperationType::RR)) \
-	{ \
-	VECTOR_CALC(VFCALC, VFBLCST, VMOVH); \
-	default: \
-		assert(false); \
-	} \
-} \
+bool GenerateCalculationCode
+(
+	FRegisterTable* Table,
+	Xbyak::CodeGenerator* Generator,
+	const SInstruction& Ins, 
+	SRegisterType DestType,
+	uint ProgragmCount,
+	MnemonicOperand2 CalculationInt,
+	MnemonicSIMDOperand3Int CalculationVectorInt,
+	MnemonicSIMDOperand2 BloadcastVectorInt,
+	MnemonicSIMDOperand3Float CalculationVectorFloat,
+	MnemonicSIMDOperand2 BloadcastVectorFloat
+)
+{
+	if (Ins.Type == EVectorType::II)
+	{
+		if (CalculationInt)
+		{
+			auto Operands = Table->GetCompressed2Operands(DestType, Ins.Operand0, Ins.Operand1, Ins.Operand2, ProgragmCount);
+			(Generator->*CalculationInt)(Operands[0].SingleInt, Operands[1].SingleInt);
+			return true;
+		}
+	}
+	else
+	{
+		auto Operands = Table->Get3Operands(DestType, Ins.Operand0, Ins.Operand1, Ins.Operand2, ProgragmCount);
+		if (CalculationVectorInt)
+		{
+			if (GenerateVectorCalculationCode(Generator, Operands, Ins.Type, CalculationVectorInt, BloadcastVectorInt))
+			{
+				return true;
+			}
+		}
+
+		if (CalculationVectorFloat)
+		{
+			auto Type = (EVectorType)((uint)Ins.Type - (uint)EVectorType::RR);
+			if (GenerateVectorCalculationCode(Generator, Operands, Type, CalculationVectorFloat, BloadcastVectorFloat))
+			{
+				return true;
+			}
+		}
+	}
+	return false;
+}
+
+void GenerateFlipSignCode
+(
+	FRegisterTable* Table,
+	Xbyak::CodeGenerator* Generator,
+	const SInstruction& Ins,
+	SRegisterType DestType,
+	uint ProgragmCount
+)
+{
+	if (Ins.Type == EVectorType::II)
+	{
+		auto Operand = Table->Use(Ins.Operand0, ProgragmCount);
+		Generator->neg(Operand.SingleInt);
+	}
+	else
+	{
+		auto Operands = Table->Get2Operands(DestType, Ins.Operand0, Ins.Operand1, Ins.Operand2, ProgragmCount);
+		auto MinusVector = Table->GetTemporarySIMDRegister();
+		Generator->vbroadcastss(MinusVector, 1);
+
+		auto Operands = Table->Get3Operands(DestType, Ins.Operand0, Ins.Operand1, Ins.Operand2, ProgragmCount);
+		if (!GenerateVectorFlipSignCode(Generator, Operands, Ins.Type, MinusVector, &Xbyak::CodeGenerator::vpmulld))
+		{
+			auto Type = (EVectorType)((uint)Ins.Type - (uint)EVectorType::RR);
+			if (!GenerateVectorFlipSignCode(Generator, Operands, Type, MinusVector, &Xbyak::CodeGenerator::vmulps))
+			{
+				assert(false);
+			}
+		}
+	}
+}
 
 void FCompiler::Run(const vector<SInstruction>& Instructions)
 {
 	Xbyak::CodeGenerator gen(50000);
 	FRegisterTable Table;
-
+	
 	for (uint i = 0; i < Instructions.size(); i++)
 	{
 		auto& Ins = Instructions[i];
@@ -424,9 +504,11 @@ void FCompiler::Run(const vector<SInstruction>& Instructions)
 		case EInstruction::SUB:
 		case EInstruction::MUL:
 		case EInstruction::DIV:
-		case EInstruction::MNS:
 			Table.PrimaryRead(Ins.Operand1, i);
 			Table.PrimaryRead(Ins.Operand2, i);
+			break;
+		case EInstruction::MNS:
+			Table.PrimaryRead(Ins.Operand1, i);
 			break;
 		case EInstruction::STOREA:
 		case EInstruction::LOADA:
@@ -443,41 +525,63 @@ void FCompiler::Run(const vector<SInstruction>& Instructions)
 
 	for (uint i = 0; i < Instructions.size(); i++)
 	{
+		bool IsSuccessful = true;
+
 		auto& Ins = Instructions[i];
 		auto DestType = GetDestRegisterType(Ins.Type);
-		EInstruction e;
-		switch (e)
+		switch (Ins.Code)
 		{
 		case EInstruction::LABEL:
 			break;
-		case EInstruction::ADD:GP2_CALC(add, vpaddd, vpbroadcastd, vaddps, vbroadcastss, movlhps) break;
-		case EInstruction::SUB:GP2_CALC(sub, vpsubd, vpbroadcastd, vsubps, vbroadcastss, movlhps) break;
-		case EInstruction::MUL:GP2_CALC(imul, vpmulld, vpbroadcastd, vmulps, vbroadcastss, movlhps) break;
-		case EInstruction::DIV:GP2_CALC(add, vpaddd, vpbroadcastd, vdivps, vbroadcastss, movlhps) break;
+	
+		case EInstruction::ADD:
+			IsSuccessful = GenerateCalculationCode
+			(
+				&Table, &gen, Ins, DestType, i,
+				&Xbyak::CodeGenerator::add,
+				&Xbyak::CodeGenerator::vpaddd,
+				&Xbyak::CodeGenerator::vpbroadcastd,
+				&Xbyak::CodeGenerator::vaddps,
+				&Xbyak::CodeGenerator::vbroadcastss
+			);
+			break;
+		case EInstruction::SUB:
+			IsSuccessful = GenerateCalculationCode
+			(
+				&Table, &gen, Ins, DestType, i,
+				&Xbyak::CodeGenerator::sub,
+				&Xbyak::CodeGenerator::vpsubd,
+				&Xbyak::CodeGenerator::vpbroadcastd,
+				&Xbyak::CodeGenerator::vsubps,
+				&Xbyak::CodeGenerator::vbroadcastss
+			);
+			break;
+		case EInstruction::MUL:
+			IsSuccessful = GenerateCalculationCode
+			(
+				&Table, &gen, Ins, DestType, i,
+				nullptr,//&Xbyak::CodeGenerator::imul,
+				&Xbyak::CodeGenerator::vpmulld,
+				&Xbyak::CodeGenerator::vpbroadcastd,
+				&Xbyak::CodeGenerator::vmulps,
+				&Xbyak::CodeGenerator::vbroadcastss
+			);
+			break;
+		case EInstruction::DIV:
+			IsSuccessful = GenerateCalculationCode
+			(
+				&Table, &gen, Ins, DestType, i,
+				nullptr,
+				nullptr,
+				&Xbyak::CodeGenerator::vpbroadcastd,
+				&Xbyak::CodeGenerator::vdivps,
+				&Xbyak::CodeGenerator::vbroadcastss
+			);
+			break;
 		case EInstruction::MOD:break;
+			
 		case EInstruction::MNS:
-			if (Ins.Type == EOperationType::II)
-			{
-				auto Operand = Table.Use(Ins.Operand0, i);
-				gen.neg(Operand.SingleInt);
-			}
-			else
-			{
-				auto Operands = Table.Get3Operands(DestType, Ins.Operand0, Ins.Operand1, Ins.Operand2, i);
-				auto MinusVector = Table.GetTemporarySIMDRegister();
-				//gen.vbroadcastss(MinusVector, 1);
-				switch (Ins.Type)
-				{
-					VECTOR_MNS_CALC(vpmulld, vpbroadcastd, movlhps);
-				default:
-					switch ((EOperationType)((uint)Ins.Type - (uint)EOperationType::RR))
-					{
-						VECTOR_MNS_CALC(vmulps, vbroadcastss, movlhps);
-					default:
-						assert(false);
-					}
-				}
-			}
+			GenerateFlipSignCode(&Table, &gen, Ins, DestType, i);
 			break;
 		case EInstruction::ICE:
 			break;
@@ -491,23 +595,23 @@ void FCompiler::Run(const vector<SInstruction>& Instructions)
 			break;
 		case EInstruction::ICLE:
 			break;
-		case EInstruction::FCE:
+		case EInstruction::CMPE:
 			break;
-		case EInstruction::FCNE:
+		case EInstruction::CMPNE:
 			break;
-		case EInstruction::FCG:
+		case EInstruction::CMPG:
 			break;
-		case EInstruction::FCL:
+		case EInstruction::CMPL:
 			break;
-		case EInstruction::FCGE:
+		case EInstruction::CMPGE:
 			break;
-		case EInstruction::FCLE:
+		case EInstruction::CMPLE:
 			break;
-		case EInstruction::LN:
+		case EInstruction::NOT:
 			break;
-		case EInstruction::LAND:
+		case EInstruction::AND:
 			break;
-		case EInstruction::LOR:
+		case EInstruction::OR:
 			break;
 		case EInstruction::SIN:
 			break;

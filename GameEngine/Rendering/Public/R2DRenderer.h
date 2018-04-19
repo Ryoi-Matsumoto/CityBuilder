@@ -1,16 +1,9 @@
 #pragma once
 
-class FRHIDevice;
-class FRHIShader;
-class FRHITexture;
-class FRHIVertexBuffer;
-class FRResourceManager;
-class FR2DRenderer;
-
 class FR2DObject
 {
 public:
-	virtual void Render(FR2DRenderer* Renderer, int2 Position, float4 Color) const = 0;
+	virtual void Render(class FR2DRenderer* Renderer, int2 Position, float4 Color) const = 0;
 	virtual uint GetWidth() const = 0;
 	virtual uint GetHeight() const = 0;
 };
@@ -18,14 +11,16 @@ public:
 class FR2DRenderer
 {
 private:
-	FRResourceManager* ResourceManager;
-	FRHIDevice* Device;
-	unique_ptr<FRHIVertexBuffer> VertexBuffer;
+	class FRResourceManager* ResourceManager;
+	class FRHIDevice* Device;
+	unique_ptr<class FRHIVertexBuffer> RectangleVertexBuffer;
+	unique_ptr<class FRHIVertexBuffer> TriangleVertexBuffer;
 	float2 ScreenSize;
 
 public:
-	FR2DRenderer(FRHIDevice* Device, FRResourceManager* ResourceManager);
+	FR2DRenderer(class FRHIDevice* Device, class FRResourceManager* ResourceManager);
 	void SetDrawArea(intrect Area);
 	void DrawRectangle(intrect Rectangle, float4 Color);
-	void DrawTexture(FRHITexture* Texture, intrect Rectangle, float4 Color = float4(1));
+	void DrawTriangle(intrect Rectangle, float4 Color, bool Upside);
+	void DrawTexture(class FRHITexture* Texture, intrect Rectangle, float4 Color = float4(1));
 };

@@ -25,20 +25,16 @@ uint FRTextContainer::GetLineLatterWidth(SRTextPlace Place) const
 	return GetLineBetweenWidth(Place, Lines[Place.Line].size() - Place.Letter); 	 
 }
 
-uint FRTextContainer::GetLetterNumber(uint Line, uint PositionX) const
+uint FRTextContainer::GetLetterNumber(uint Line, int PositionX) const
 {
-	uint LetterNumber;
+	uint LetterNumber = 0;
 	uint LetterCount = Lines[Line].size();
 
-	if (LetterCount == 0)
-	{
-		LetterNumber = 0;
-	}
-	else
+	if (LetterCount > 0)
 	{
 		LetterNumber = LetterCount;
 		int LetterPositionX = 0, PrevLetterPositionX = 0;
-		for (int i = 0; i < LetterCount - 1; i++)
+		for (int i = 0; i < LetterCount; i++)
 		{
 			LetterPositionX += Lines[Line][i]->GetWidth();
 			if (LetterPositionX > PositionX)
@@ -63,7 +59,7 @@ FRTextContainer::FRTextContainer(FRFontSet* FontSet)
 {
 }
 
-uint FRTextContainer::GetLineNumber(uint PositionY) const
+uint FRTextContainer::GetLineNumber(int PositionY) const
 {
 	uint Line = StartLine + PositionY / LineHeight;
 	Line = FMath::Min(Line, Lines.size() - 1);
@@ -72,12 +68,11 @@ uint FRTextContainer::GetLineNumber(uint PositionY) const
 
 int2 FRTextContainer::GetLetterPosition(SRTextPlace Place) const
 {
-	int2 Position(0, LineHeight * (Place.Line - StartLine));
+	int2 Position(0, LineHeight * 0.1f + LineHeight * (Place.Line - StartLine));
+
 	auto& CurrentLine = Lines[Place.Line];
 	for (int i = 0; i < Place.Letter; i++)
-	{
 		Position.X += CurrentLine[i]->GetWidth();
-	}
 	return Position;
 }
 
@@ -94,14 +89,12 @@ SRTextPlace FRTextContainer::InsertReturn(SRTextPlace Place)
 {
 	auto& CurrentLine = Lines[Place.Line];
 	vector<FRFontLetter*> FormerLine, LatterLine;
+
 	for (int i = 0; i < Place.Letter; i++)
-	{
 		FormerLine.push_back(CurrentLine[i]);
-	}
 	for (int i = Place.Letter; i < CurrentLine.size(); i++)
-	{
 		LatterLine.push_back(CurrentLine[i]);
-	}
+
 	Lines.erase(Lines.begin() + Place.Line);
 	Lines.insert(Lines.begin() + Place.Line, FormerLine);
 	Lines.insert(Lines.begin() + Place.Line + 1, LatterLine);
@@ -144,13 +137,10 @@ SRTextPlace FRTextContainer::DeleteLettersBetween(SRTextPlaceArea Area)
 		}
 
 		for (int i, FirstLine = i = Area.FromPlace.Line + 1; i < Area.ToPlace.Line; i++)
-		{
 			Lines.erase(Lines.begin() + FirstLine);
-		}
+
 		if (Area.FromPlace.Line < Lines.size() - 1)
-		{
 			LinkPreviusLine(Area.FromPlace.Line + 1);
-		}
 	}
 	return Area.FromPlace;
 }
@@ -170,6 +160,27 @@ SRTextPlace FRTextContainer::LinkPreviusLine(uint Line)
 	Place.Letter = PrevLineSize;
 	Place.Line = Line - 1;
 	return Place;
+}
+/*
+1111111aaaaaaaaaa
+bbbbbbbbbbbbbb
+ccccccccc111111111
+2222222222222
+33333333333333333
+aaaaaacccccc
+*/
+SRTextPlace FRTextContainer::DragAndDropText(SRTextPlaceArea Area, SRTextPlace DragTo)
+{
+	vector<FRFontLetter*> DraggedLetters;
+	for (uint Line = Area.FromPlace.Line; Line < Area.ToPlace.Line; Line++)
+	{
+		for (uint Letter = 0; Letter < Lines[Line].size(); Letter++)
+		{
+			DraggedLetters.push_back(Lines[Line][Letter]);
+		}
+	}
+
+	return DragTo;
 }
 
 SRTextPlace FRTextContainer::GetTextPlace(int2 Position) const
@@ -206,4 +217,23 @@ void FRTextContainer::SetText(wstring Text)
 		}
 		Lines.push_back(Fontwchar_ts);
 	}
+}
+
+wstring FRTextContainer::GetText() const
+{
+	uint TextCount = Lines.size();
+	for (auto& Line : Lines)
+		TextCount += Line.size();
+
+	wstring Text;
+	Text.reserve(TextCount);
+
+	for (auto& Line : Lines)
+	{
+		for (auto Letter : Line)
+			Text += Letter->GetLetter();
+		Text += L'\n';
+	}
+
+	return Text;
 }

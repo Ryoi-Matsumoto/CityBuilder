@@ -3,8 +3,6 @@
 
 class FExpression;
 
-string GetTypeName(EValueType Type);
-regptr GetTypeSize(EValueType Type);
-EOperationType GetOperationType(EValueType Type);
-EOperationType GetOperationType(EValueType LeftType, EValueType RightType);
-regptr GenerateCodeStoreArguments(const SCompilingData& Data, const vector<FExpression*> Expressions, regptr ArgumentRegister, uint Index);
+vector<regptr> GenerateCodeArguments(const SCompilingData& Data, const vector<FExpression*> Arguments);
+regptr GenerateCodeStoreArguments(const SCompilingData& Data, const vector<FExpression*> Arguments, regptr ArgumentRegister);
+bool CheckArguments(string Type, string Name, const SCompilingData& Data, const vector<SType>& ArgumentTypes, const vector<FExpression*>& Arguments);

@@ -22,7 +22,7 @@ public:
 	void SetBuffer(uint Index, const void* Buffer) override;
 	void SetTexture(uint Index, FRHITexture* Texture) override;	
 	
-	FDX11Shader(ID3D11Device* Device, ERHIShaderType ShaderType, binarydata Binary);
+	FDX11Shader(ID3D11Device* Device, ERHIShaderType ShaderType, vector<char> Binary);
 	ID3D11VertexShader* GetVertexShader() const { return VertexShader; }
 	ID3D11PixelShader* GetPixelShader() const { return PixelShader; }
 	void Apply();

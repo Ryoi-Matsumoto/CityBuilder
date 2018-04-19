@@ -1,7 +1,7 @@
 #include "Common.h"
 #include "BoardTexturePixel.h"
 
-SamplerState SamplerLinear
+SamplerState Sampler
 {
 	Filter = MIN_MAG_MIP_LINEAR;
 	AddressU = Wrap;
@@ -10,5 +10,5 @@ SamplerState SamplerLinear
 
 float4 main(float4 Position : SV_POSITION, float2 TexCoord : TEXCOORD) : SV_Target
 {
-	return Texture.Sample(SamplerLinear, TexCoord) * Color;
+	return Texture.Sample(Sampler, TexCoord) * Color;
 }

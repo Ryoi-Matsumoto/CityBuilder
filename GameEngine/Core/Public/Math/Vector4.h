@@ -71,7 +71,7 @@ struct SVector4
 	// Ã“Iƒƒ“ƒo[
 	//======================================================================
 
-	static SVector4<T> FromRGBwchar_t(char R, char G, char B)
+	static SVector4<T> FromRGBChar(char R, char G, char B)
 	{
 		return SVector4<T>((T)R / 255, (T)G / 255, (T)B / 255, 1.0f);
 	}

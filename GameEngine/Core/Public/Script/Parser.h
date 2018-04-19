@@ -38,7 +38,10 @@ struct SParserAction
 	static bool Parse(ParsedData& Data, TResult* Out)
 	{
 		T::TResult Result;
-		if (!T::Parse(Data, &Result))return false;
+
+		if (!T::Parse(Data, &Result))
+			return false;
+
 		*Out = GetLambdaFunction<TLambda, TResult, T::TResult>(Result);
 		return true;
 	}
@@ -51,13 +54,18 @@ struct SParserString
 	using TResult = SToken;	
 	static bool Parse(ParsedData& Data, SToken* Out)
 	{
+		if (Data.Tokens.size() <= Data.Index)
+			return false;
+
 		uint64 StringCopy = String;
+
 		if(!strcmp(Data.Tokens[Data.Index].String, (const char*)&StringCopy))
 		{
 			*Out = Data.Tokens[Data.Index];
 			Data.Index += 1;
 			return true;
 		}
+
 		return false;
 	}
 };
@@ -69,12 +77,16 @@ struct SParserAnnotator
 	using TResult = SToken;
 	static bool Parse(ParsedData& Data, SToken* Out)
 	{
-		if (Data.Tokens[Data.Index].Annotator == Annotator)
+		if (Data.Tokens.size() <= Data.Index)
+			return false;
+
+		if (Annotator == EAnnotator::Any || Data.Tokens[Data.Index].Annotator == Annotator)
 		{
 			*Out = Data.Tokens[Data.Index];
 			Data.Index += 1;
 			return true;
 		}
+
 		return false;
 	}
 };
@@ -96,8 +108,12 @@ struct SParserOr : public SPair<TLeft, TRight>
 	using TResult = _TResult;
 	static bool Parse(ParsedData& Data, TResult* Out)
 	{
-		if (TLeft::Parse(Data, Out))return true;
-		if (TRight::Parse(Data, Out))return true;
+		if (TLeft::Parse(Data, Out))
+			return true;
+
+		if (TRight::Parse(Data, Out))
+			return true;
+
 		return false;
 	}
 };
@@ -113,15 +129,24 @@ struct SParserSplit
 		TResult::value_type Result;
 		TSplitter::TResult Dammy;
 
-		if (T::Parse(Data, &Result))Results.push_back(Result);
-		else return true;
+		if (T::Parse(Data, &Result))
+			Out->push_back(Result);
+		else
+			return true;
 
 		while (Data.Index < Data.Tokens.size())
 		{
-			if (!TSplitter::Parse(Data, &Dammy) || !T::Parse(Data, &Result))break;
-			Results.push_back(Result);
+			auto Index = Data.Index;
+			if (!TSplitter::Parse(Data, &Dammy))
+				break;
+			if (!T::Parse(Data, &Result))
+			{
+				Data.Index = Index;
+				break;
+			}
+			Out->push_back(Result);
 		}
-		*Out = Results;
+
 		return true;
 	}
 };
@@ -133,20 +158,24 @@ struct SParserAtLeastOnce
 	using TResult = _TResult;
 	static bool Parse(ParsedData& Data, TResult* Out)
 	{
-		TResult Results;
 		auto BackupIndex = Data.Index;
+
 		while (Data.Index < Data.Tokens.size())
 		{
 			TResult::value_type Result;
-			if (!T::Parse(Data, &Result))break;
-			Results.push_back(Result);
+
+			if (!T::Parse(Data, &Result))
+				break;
+
+			Out->push_back(Result);
 		}
+
 		if (Results.size() == 0)
 		{
 			Data.Index = BackupIndex;
 			return false;
 		}
-		*Out = Results;
+
 		return true;
 	}
 };
@@ -156,16 +185,21 @@ struct SParserMany
 {
 	_ParserOperator;
 	using TResult = _TResult;
+
 	static bool Parse(ParsedData& Data, TResult* Out)
 	{
 		TResult Results;
+
 		while (Data.Index < Data.Tokens.size())
 		{
 			TResult::value_type Result;
-			if (!T::Parse(Data, &Result))break;
-			Results.push_back(Result);
+
+			if (!T::Parse(Data, &Result))
+				break;
+
+			Out->push_back(Result);
 		}
-		*Out = Results;
+
 		return true;
 	}
 };
@@ -175,11 +209,35 @@ struct SParserNoneOrOnce
 {
 	_ParserOperator;
 	using TResult = _TResult;
+
 	static bool Parse(ParsedData& Data, TResult* Out)
 	{
 		TResult Result;
-		if (T::Parse(Data, &Result))*Out = Result;
-		else memset(Out, 0, sizeof(TResult));
+
+		if (T::Parse(Data, &Result))
+			*Out = Result;
+		else
+			memset(Out, 0, sizeof(TResult));
+
+		return true;
+	}
+};
+
+template<typename T, typename _TResult>
+struct SParserNoneOrOncePair
+{
+	_ParserOperator;
+	using TResult = _TResult;
+
+	static bool Parse(ParsedData& Data, TResult* Out)
+	{
+		T::TResult Result;
+
+		if (T::Parse(Data, &Result))
+			*Out = TResult(Result, true);
+		else
+			*Out = TResult(TResult::first_type(), false);
+
 		return true;
 	}
 };
@@ -192,8 +250,12 @@ struct SParserNoneOrOnceVector
 	static bool Parse(ParsedData& Data, vector<TResult> Out)
 	{
 		vector<TResult> Result;
-		if (T::Parse(Data, &Result)) *Out = Result;
-		else *Out = vector<TResult>();
+
+		if (T::Parse(Data, &Result))
+			*Out = Result;
+		else
+			*Out = vector<TResult>();
+
 		return true;
 	}
 };
@@ -206,8 +268,12 @@ struct SParserIsThere
 	static bool Parse(ParsedData& Data, bool* Out)
 	{
 		T::TResult Result;
-		if (T::Parse(Data, &Result))*Out = true;
-		else *Out = false;
+
+		if (T::Parse(Data, &Result))
+			*Out = true;
+		else
+			*Out = false;
+
 		return true;
 	}
 };
@@ -266,12 +332,16 @@ struct SParserAddBase
 	static bool Parse(ParsedData& Data, TResult* Out)
 	{
 		int Index = Data.Index;
-		if (!TLeft::Parse(Data, &Out->Left))return false;
+
+		if (!TLeft::Parse(Data, &Out->Left))
+			return false;
+
 		if (!TRight::Parse(Data, &Out->Right))
 		{
 			Data.Index = Index;
 			return false;
 		}
+
 		return true;
 	}
 };
@@ -384,22 +454,30 @@ struct SParserCatenation
 	static bool Parse(ParsedData& Data, TResult* Out)
 	{
 		TResult Result;
-		if (!T::Parse(Data, &Result))return false;
+
+		if (!T::Parse(Data, &Result))
+			return false;
+
 		while (Data.Index < Data.Tokens.size())
 		{
 			TConnecter::TResult Connecter;
 			TResult Body;
 			auto BackupIndex = Data.Index;
-			if (!TConnecter::Parse(Data, &Connecter))break;
+
+			if (!TConnecter::Parse(Data, &Connecter))
+				break;
+
 			if (!T::Parse(Data, &Body))
 			{
 				Data.Index = BackupIndex;
 				break;
 			}
+
 			using TPrimaryResult = SPair<SPair<TResult, TConnecter::TResult>, TResult>;
 			auto Pair = TPrimaryResult(SPair<TResult, TConnecter::TResult>(Result, Connecter), Body);
 			Result = GetLambdaFunction<TLambda, TResult, TPrimaryResult>(Pair);
 		}
+
 		*Out = Result;
 		return true;
 	}
@@ -408,7 +486,6 @@ struct SParserCatenation
 namespace Single
 {
 	const SParserAnnotator<EAnnotator::Any> Any;
-	const SParserAnnotator<EAnnotator::End> End;
 	const SParserAnnotator<EAnnotator::Identifier> Ident;
 	const SParserAnnotator<EAnnotator::Integer> Integer;
 	const SParserAnnotator<EAnnotator::Symbol> Symbol;
@@ -450,6 +527,12 @@ inline auto NoneOrOnce(T Target)
 }
 
 template<typename T>
+inline auto NoneOrOncePair(T Target)
+{
+	return SParserNoneOrOncePair<T, pair<T::TResult, bool>>();
+}
+
+template<typename T>
 inline auto RootParse(T Parser, vector<SToken>&& Tokens)
 {
 	ParsedData Data(move(Tokens));
@@ -465,6 +548,7 @@ inline auto RootParse(T Parser, vector<SToken>&& Tokens)
 	decltype(Parser)::TResult Test; \
 	return SParserAction<decltype(Parser), decltype(Lambda(Test)), decltype(Lambda)>(); \
 })()
+
 #define Catenation(B, C, R) \
 ([=]() { \
 	auto Body = B; \
@@ -473,11 +557,13 @@ inline auto RootParse(T Parser, vector<SToken>&& Tokens)
 	auto Lambda = [](decltype(Parser)::TResult $){return R; }; \
 	return SParserCatenation<decltype(Body), decltype(Connecter), decltype(Body)::TResult, decltype(Lambda)>(); \
 })()
-#define Literal(S) SParserString<ToUint64(S)>()
-#define Marker(P) SParserSettingMarker<decltype(P), decltype(P)::TResult>()
-#define Mark(P, M) SMarker<decltype(P), decltype(P)::TResult, (uint)M>()
-#define Ref(T, M) SParserReference<T, (uint)M>()
-#define Rec(T) SParserRecursion<T>();
+
+#define PLit(S) SParserString<ToUint64(S)>()
+#define PSet(P) SParserSettingMarker<decltype(P), decltype(P)::TResult>()
+#define PMark(P, M) SMarker<decltype(P), decltype(P)::TResult, (uint)M>()
+#define PRef(T, M) SParserReference<T, (uint)M>()
+#define PRec(T) SParserRecursion<T>()
+#define PCombi(A, B) Act(A + B, SToken(strcat($0.String, $1.String), $0.Annotator, SLocation::Between($0.Location, $1.Location)))
 
 #define $0 decltype(Parser)::GetResult0($)
 #define $1 decltype(Parser)::GetResult1($)

@@ -1,7 +1,7 @@
 #include "../../Public/System/FileManager.h"
 #include <fstream>
 
-binarydata FFileManager::ReadBinaryFile(wstring const& FileName)
+vector<char> FFileManager::ReadBinaryFile(wstring const& FileName)
 {
 	ifstream FileStream(FileName, ios::in | ios::binary);
 
@@ -9,8 +9,8 @@ binarydata FFileManager::ReadBinaryFile(wstring const& FileName)
 	int Size = (int)FileStream.tellg();
 	FileStream.seekg(0, ios_base::beg);
 
-	auto Result = binarydata(Size);
-	FileStream.read(Result.get(), Size);
+	auto Result = vector<char>(Size);
+	FileStream.read(&Result[0], Size);
 	FileStream.close();
 
 	return Result;

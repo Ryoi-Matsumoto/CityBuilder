@@ -19,7 +19,7 @@ void ParserTest()
 	assert(!strcmp(Result.Left.String, "+") && !strcmp(Result.Right.String, "apple"));
 
 	// 3項Addテスト
-	auto Parser2 = Single::String + Literal(":") + Single::Integer;
+	auto Parser2 = Single::String + PLit(":") + Single::Integer;
 	auto Result2 = DefaultParse(Parser2, "\"lenght\":12");
 	assert(!strcmp(Result2.Right.String, "12"));
 
@@ -35,9 +35,9 @@ void ParserTest()
 	
 	// 再帰テスト
 	auto ParserInt = Act(Single::Integer, stoi($.String));
-	auto Parser4 = Act(Split(ParserInt | Ref(int, 0), Literal(",")), accumulate($.begin(), $.end(), 0));
-	auto Parser5 = Act(Literal("[") + Parser4 + Literal("]"), $1);
-	auto Parser6 = Mark(Parser5, 0);
+	auto Parser4 = Act(Split(ParserInt | PRef(int, 0), PLit(",")), accumulate($.begin(), $.end(), 0));
+	auto Parser5 = Act(PLit("[") + Parser4 + PLit("]"), $1);
+	auto Parser6 = PMark(Parser5, 0);
 	auto Result4 = DefaultParse(Parser6, "[[1,2,3,[4,5,6],7,8,9],[1,2,3,[4,[5,[6,7,[8],9]]]]]");
 	assert(Result4 == 90);
 
@@ -55,13 +55,11 @@ void ParserTest()
 	assert(Json2["object"]["iphone"].GetInteger() == 10);
 
 	// 四則計算
-	auto Value = Act(Single::Integer, (double)stoi($.String)) | Act(Single::Decimal, stod($.String));
-	auto Bracket = Act(Literal("(") + Ref(double, 0) + Literal(")"), $1) | Value;
-	auto Unary = Act(Literal("-") + Bracket, -$1) | Bracket;
-	auto MulExprImp = Act(Unary + Literal("*") + Unary, $0 * $2) | Act(Unary + Literal("/") + Unary, $0 / $2) | Unary;
-	auto MulExpr = Mark(MulExprImp, 1);
-	auto AddExprImp = Act(MulExpr + Literal("+") + MulExpr, $0 + $2) | Act(MulExpr + Literal("-") + MulExpr, $0 - $2) | MulExpr;
-	auto AddExpr = Mark(AddExprImp, 0);
-	double ExprResult = DefaultParse(AddExpr, "43/3*3");
-	//assert(abs(ExprResult - 106) < 0.1);
+	auto Value   = Act(Single::Integer | Single::Decimal, stod($.String));
+	auto Bracket = Act(PLit("(") + PRef(double, 0) + PLit(")"), $1) | Value;
+	auto Unary   = Act(PLit("-") + Bracket, -$1) | Bracket;
+	auto MulExpr = Catenation(Unary,   Act(PLit("*"), true) | Act(PLit("/"), false), $1 ? $0 * $2 : $0 / $2);
+	auto AddExpr = Catenation(MulExpr, Act(PLit("+"), true) | Act(PLit("-"), false), $1 ? $0 + $2 : $0 - $2);
+	double ExprResult = DefaultParse(PMark(AddExpr, 0), "2*-2");
+	//assert(abs(ExprResult - 42) < 0.1);
 }

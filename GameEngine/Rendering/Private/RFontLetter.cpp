@@ -73,7 +73,7 @@ void FRFontLetter::Render(FR2DRenderer* Renderer, int2 Position, float4 Color) c
 	}
 }
 
-FRFontSet::FRFontSet(FRHIDevice* Device, CRRFontType FontType)
+FRFontSet::FRFontSet(FRHIDevice* Device, const SRFontType& FontType)
 	: FontType(FontType)
 	, Device(Device)
 {
@@ -100,7 +100,7 @@ FRFontLetter* FRFontSet::GetFontLetter(wchar_t Letter)
 	return FontLetter;
 }
 
-FRFontSet* FRFontManager::GetFontSet(CRRFontType FontType)
+FRFontSet* FRFontManager::GetFontSet(const SRFontType& FontType)
 {
 	auto FontTypeEx = SRFontTypeEx(FontType);
 	
@@ -116,4 +116,17 @@ FRFontSet* FRFontManager::GetFontSet(CRRFontType FontType)
 		FontSet = FindItr->second.get();
 	}
 	return FontSet;
+}
+
+#define CompareAndReturn(A) if (A < Right.A) return true; if (A > Right.A) return false;
+
+bool SRFontTypeEx::operator < (const SRFontTypeEx& Right) const
+{
+	CompareAndReturn(Size);
+	CompareAndReturn(Weight);
+	CompareAndReturn(Family);
+	CompareAndReturn(Itaric);
+	CompareAndReturn(Underline);
+	CompareAndReturn(StrikeOut);
+	return false;
 }

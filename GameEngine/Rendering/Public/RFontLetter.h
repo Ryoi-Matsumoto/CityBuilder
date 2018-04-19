@@ -57,11 +57,12 @@ private:
 	bool IsBrank = false;
 
 public:
-	FRFontLetter(FRHIDevice* Device, FFontGenerator* FontGenerator, wchar_t Letter);
+	FRFontLetter(class FRHIDevice* Device, FFontGenerator* FontGenerator, wchar_t Letter);
 
 	void Render(FR2DRenderer* Renderer, int2 Position, float4 Color) const override;
 	uint GetWidth() const override { return FontRegion.X; }
 	uint GetHeight() const override { return FontRegion.Y; }
+	wchar_t GetLetter() const { return Letter; }
 };
 
 class FFontGenerator;
@@ -69,45 +70,34 @@ class FFontGenerator;
 class FRFontSet
 {
 private:
-	FRHIDevice* Device;
+	class FRHIDevice* Device;
 	unique_ptr<FFontGenerator> FontGenerator;
 	SRFontType FontType;
 	map<wchar_t, unique_ptr<FRFontLetter>> FontLetters;
 
 public:
-	FRFontSet(FRHIDevice* Device, CRRFontType FontType);
+	FRFontSet(class FRHIDevice* Device, CRRFontType FontType);
 	~FRFontSet();
 
 	FRFontLetter* GetFontLetter(wchar_t Letter);
 	SRFontType GetFontType() const { return FontType; }
 };
 
-#define CompareAndReturn(A)	if (A < Right.A) return true; if (A > Right.A) return false;
-
 struct SRFontTypeEx : public SRFontType
 {
 	SRFontTypeEx(SRFontType Base) : SRFontType(Base) {}
 
-	bool operator < (const SRFontTypeEx& Right) const
-	{
-		CompareAndReturn(Size);
-		CompareAndReturn(Weight);
-		CompareAndReturn(Family);
-		CompareAndReturn(Itaric);
-		CompareAndReturn(Underline);
-		CompareAndReturn(StrikeOut);
-		return false;
-	}
+	bool operator < (const SRFontTypeEx& Right) const;
 };
 
 class FRFontManager
 {
 private:
-	FRHIDevice* Device;
+	class FRHIDevice* Device;
 	map<SRFontTypeEx, unique_ptr<FRFontSet>> FontSets;
 
 public:
-	FRFontManager(FRHIDevice* Device)
+	FRFontManager(class FRHIDevice* Device)
 		: Device(Device)
 	{
 	}

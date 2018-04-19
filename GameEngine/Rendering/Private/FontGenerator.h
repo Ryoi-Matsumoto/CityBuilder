@@ -16,7 +16,7 @@ private:
 	SRFontType FontType;
 
 public:
-	FFontGenerator(CRRFontType FontType);
+	FFontGenerator(const SRFontType& FontType);
 	~FFontGenerator();
 	void SetLetter(wchar_t Letter);
 	
@@ -25,5 +25,5 @@ public:
 	int2 GetFontRegion() const;
 	uint GetGrad() const { return Grad; }
 	const BYTE* GetBitmap() const;
-	CRRFontType GetFontType() const { return FontType; }
+	const SRFontType& GetFontType() const { return FontType; }
 };

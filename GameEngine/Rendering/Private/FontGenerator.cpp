@@ -1,6 +1,6 @@
 #include "FontGenerator.h"
 
-FFontGenerator::FFontGenerator(CRRFontType FontType)
+FFontGenerator::FFontGenerator(const SRFontType& FontType)
 	: FontType(FontType)
 {
 	LOGFONTA Desc = { 0 };

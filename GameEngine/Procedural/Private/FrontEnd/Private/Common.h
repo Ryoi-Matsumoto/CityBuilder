@@ -5,87 +5,107 @@ class FStatementBlock;
 
 struct SLiteral
 {
-	bool IsValid;
+	vector<int> Vector;
 	union
 	{
 		float Real;
 		int Int;
-		float2 Real2;
-		int2 Int2;
-		float3 Real3;
-		int3 Int3;
 		bool Bool;
 	};
 
-	SLiteral() : IsValid(false) {}
-	SLiteral(bool Bool) : Bool(Bool), IsValid(true) {}
-	SLiteral(float Float) : Real(Float), IsValid(true) {}
-	SLiteral(int Int) : Int(Int), IsValid(true) {}
-	SLiteral(float2 Float2) : Real2(Float2), IsValid(true) {}
-	SLiteral(int2 Int2) : Int2(Int2), IsValid(true) {}
-	SLiteral(float3 Float3) : Real3(Float3), IsValid(true) {}
-	SLiteral(int3 Int3) : Int3(Int3), IsValid(true) {}
+	SLiteral() {}
+	SLiteral(bool Bool) : Bool(Bool) {}
+	SLiteral(float Real) : Real(Real) {}
+	SLiteral(int Int) : Int(Int) {}
+
+	static SLiteral Empty(uint Size)
+	{
+		SLiteral Literal;
+		if (Size > 1)Literal.Vector.resize(Size);
+		return Literal;
+	}
+
+	void* GetPointer() const { return Vector.size() == 0 ? (void*)&Int : (void*)&Vector[0]; }
 };
 
 struct SVariable
 {
-	EValueType Type;
+	SType Type;
 	regptr Register;
 	SLiteral Literal;
-	uint Size;
+	bool IsLiteralVaild;
 
-	SVariable() {}
-
-	SVariable(EValueType Type, regptr Register) : Type(Type), Register(Register) {}
-};
-
-struct SFunction
-{
-	EValueType ReturnType;
-	vector<EValueType> ArgumentTypes;
-	FStatementBlock* Block;
-	regptr Label;
-
-	SFunction() {}
-
-	SFunction(EValueType ReturnType, vector<EValueType> ArgumentTypes, FStatementBlock* Block, regptr Label)
-		: ReturnType(ReturnType), ArgumentTypes(ArgumentTypes), Block(Block), Label(Label) {}
-};
-
-enum class EProcedureType
-{
-	Tag, Value
+	SVariable() : IsLiteralVaild(false) {}
+	SVariable(SType Type, regptr Register) : IsLiteralVaild(false), Type(Type), Register(Register) {}
 };
 
 struct SShape
 {
-	vector<pair<EValueType, string>> Members;
+	vector<pair<SType, string>> Members;
 	vector<FStatementBlock*> Converters;
 	uint Size;
+
+
+	SShape(vector<pair<SType, string>> Members) : Members(Members) {}
+};
+
+struct SCompilingData;
+
+struct SFunction
+{
+	using TGenerateCode = regptr (*)(const SCompilingData& Data, const vector<regptr>& Arguments);
+
+	bool IsBuiltInNotDefine;
+
+	SType ReturnType;
+	vector<SType> ArgumentTypes;
+
+	union
+	{
+		struct
+		{
+			const FStatementBlock* Block;
+			regptr Label;
+		};
+		TGenerateCode GenerateCode;
+	};
+
+	SFunction() {}
+	SFunction(SType ReturnType, vector<SType> ArgumentTypes, const FStatementBlock* Block, regptr Label)
+		: ReturnType(ReturnType), ArgumentTypes(ArgumentTypes), Block(Block), Label(Label) {}
+	SFunction(SType ReturnType, vector<SType> ArgumentTypes, TGenerateCode GenerateCode)
+		: ReturnType(ReturnType), ArgumentTypes(ArgumentTypes), GenerateCode(GenerateCode) {}
 };
 
 struct SProcedure
 {
-	SShape* TargetShape;
-	EProcedureType Type;
-	FStatementBlock* Block;
-	regptr Label;
-	vector<EValueType> ArgumentTypes;
+	using TGenerateCode = void (*)(const SCompilingData& Data, const vector<regptr>& Arguments);
 
-	//union
-	//{
-		vector<pair<string, SShape*>> ForkTagYield;
-		//struct
-		//{
-			SShape* ForkValueYield;
-			EValueType ForkValueType;
-		//};
-	//};
+	bool IsTagNotValue;
+	bool IsBuiltInNotDefine;
+
+	const SShape* TargetShape;
+	vector<SType> ArgumentTypes;
+
+	vector<pair<string, const SShape*>> ForkTagYield;
+	const SShape* ForkValueYield;
+	SType ForkValueType;
+	
+	union
+	{
+		struct
+		{
+			const FStatementBlock* Block;
+			regptr Label;
+		};
+		TGenerateCode GenerateCode;
+	};
 
 	SProcedure() {}
-
-	SProcedure(SShape* TargetShape, FStatementBlock* Block, regptr Label, vector<EValueType> ArgumentTypes)
-		: Type(EProcedureType::Tag), ArgumentTypes(ArgumentTypes), TargetShape(TargetShape), Block(Block), Label(Label), ForkTagYield(ForkTagYield) {}
+	SProcedure(bool IsTagNotValue, const SShape* TargetShape, const FStatementBlock* Block, vector<SType> ArgumentTypes, SType ForkValueType, regptr Label)
+		: IsBuiltInNotDefine(false), IsTagNotValue(IsTagNotValue), TargetShape(TargetShape), Block(Block), ArgumentTypes(ArgumentTypes), ForkValueType(ForkValueType), Label(Label) {}
+	SProcedure(vector<SType> ArgumentTypes, TGenerateCode GenerateCode)
+		: IsBuiltInNotDefine(true), GenerateCode(GenerateCode), ArgumentTypes(ArgumentTypes) {}
 };
 
 #define FScopeFind(N) auto Itr = N##s.find(Name); return Itr != N##s.end() ? &Itr->second : (Parent ? Parent->Find##N(Name) : nullptr)
@@ -117,7 +137,7 @@ public:
 	bool AddVariable(TArgs&&... Args)
 	{
 		auto Pair = Variables.try_emplace(Args...);
-		if (Pair.second)RegisterSize += Pair.first->second.Size;
+		if (Pair.second)RegisterSize += Pair.first->second.Type.GetSize();
 		return Pair.second;
 	}
 	template<typename... TArgs> SFunction* AddFunction(TArgs&&... Args) { FScopeAdd(Function) }
@@ -129,36 +149,47 @@ struct FRoutine
 {
 private:
 	vector<SInstruction> Instructions;
-	vector<pair<string, SShape*>> ForkTagYield;
 	SProcedure* CurrentProcedure;
 
 public:
 	FRoutine(SProcedure* CurrentProcedure) : CurrentProcedure(CurrentProcedure) {}
 
-	void AddInstruction(EInstruction Code, EOperationType Type, regptr Operand0, regptr Operand1, regptr Operand2)
+	void AddInstruction(EInstruction Code, regptr Operand0, regptr Operand1, regptr Operand2)
+	{
+		return Instructions.emplace_back(SInstruction(Code, SType(), Operand0, Operand1, Operand2));
+	}
+	void AddInstruction(EInstruction Code, SType Type, regptr Operand0, regptr Operand1, regptr Operand2)
 	{ 
 		return Instructions.emplace_back(SInstruction(Code, Type, Operand0, Operand1, Operand2));
+	}	
+	void AddInstruction(SOperation Operation, SType Type, regptr Operand0, regptr Operand1, regptr Operand2)
+	{
+		return Instructions.emplace_back(SInstruction(Operation, Type, Operand0, Operand1, Operand2));
 	}
 	void StoreRoutine(const FRoutine& Routine) 
 	{
 		copy(Routine.Instructions.begin(), Routine.Instructions.end(), back_inserter(Instructions));
 	}
-	vector<SInstruction>& GetInstructions() { return Instructions; }
+
+	vector<SInstruction> GetInstructions() { return Instructions; }
 	SProcedure* GetCurrentProcedure() const { return CurrentProcedure; }
-	void AddTagYield(string Tag, SShape* Shape) { ForkTagYield.push_back(pair<string, SShape*>(Tag, Shape)); }
+	void AddTagYield(string Tag, const SShape* Shape) { CurrentProcedure->ForkTagYield.push_back(pair<string, const SShape*>(Tag, Shape)); }
 };
 
-class FIntermediate
+class FProgram
 {
 private:
 	//FRoutine MainRoutine;
-	vector<long> Data;
+	vector<uint8> Data;
 	vector<SError> Errors;
 	uint LabelCount;
 
 public:
-	FIntermediate() : LabelCount(0) {}
+	FProgram() : LabelCount(0) {}
 
+	vector<uint8>* GetData() { return &Data; }
+	vector<SError>* GetErrors() { return &Errors; }
+	uint GetLabelCount() const { return LabelCount; }
 	uint IssueLabel() { LabelCount++; return LabelCount - 1; }
 	void AddData(long InData) { Data.push_back(InData); }
 	template<typename... TArgs> void AddError(TArgs&&... Args) { Errors.emplace_back(Args...); }
@@ -167,7 +198,7 @@ public:
 
 struct SCompilingData
 {
-	FIntermediate* Intermediate;
+	FProgram* Program;
 	FRoutine* Routine;
 	FScope* Scope;
 };

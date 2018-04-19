@@ -32,7 +32,7 @@ struct SRectangle
 		return SRectangle<T>(Position + Amount, Size);
 	}
 
-	bool IsRange(SVector2<T> const& Point)
+	bool IsInRange(SVector2<T> const& Point)
 	{
 		return Position.X <= Point.X && Position.Y <= Point.Y
 			&& (Position.X + Size.X) > Point.X && (Position.Y + Size.Y) > Point.Y;

@@ -1,16 +1,15 @@
 #pragma once
-#include "Common.h"
 
-struct SMaterial
+struct SMaterialObject
 {
 	string Texture;
 	float Specular;
 };
 
-struct SShape
+struct SShapeObject
 {
-	vector<uint> Triangles;
-	SMaterial Material;
+	vector<array<uint32,3>> Indexes;
+	SMaterialObject Material;
 };
 
 struct SShapeIndex
@@ -20,9 +19,9 @@ struct SShapeIndex
 	float3 Rotation;
 };
 
-struct SModel
+struct SModelObject
 {
 	vector<float3> Vertexes;
-	vector<SShape> Shapes;
+	vector<SShapeObject> Shapes;
 	vector<SShapeIndex> ShapeIndex;
 };

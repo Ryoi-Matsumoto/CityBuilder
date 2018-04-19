@@ -57,3 +57,6 @@ S_OK	エラーは発生していません。
 ・エラー	C2440'<function-style-cast>': 'initializer list' から '<type>' に変換できません。
 コンストラクタの引数の型に誤りがある。ポインターなど。
 
+・OSによる高DPIのためのスケールを無効にするには、高DPI対応アプリケーションであることをマニフェストファイルで宣言する
+https://msdn.microsoft.com/ja-jp/library/windows/desktop/dd756596(v=vs.85).aspx
+http://benzoo.fan.coocan.jp/vc01.html

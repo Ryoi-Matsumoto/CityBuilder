@@ -7,7 +7,7 @@ extern void ProcedualTest();
 
 inline void AllTest()
 {
-	//ParserTest();
+	ParserTest();
 	//JsonBenchmark();
 	ProcedualTest();
 }

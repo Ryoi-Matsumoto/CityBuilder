@@ -5,9 +5,11 @@
 
 int fib(int n) { if (n <= 1) { return 1; }return fib(n - 1) + fib(n - 2); }
 int m() { int n = 0; int f = 0; while (n < 38) { f = fib(n); n = n + 1; } return f; }
-
+void UnitTestProcedureFrontEnd();
 void ProcedualTest()
-{/*
+{
+	UnitTestProcedureFrontEnd();
+	/*
 	Compiler.Compile
 	(
 		"int fib(int n){if(n<=1){return 1}return fib(n-1)+fib(n-2)}int main(){int n=0 int f=0 while(n<38){f=fib(n) n=n+1} return f}"

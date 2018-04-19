@@ -69,6 +69,11 @@ struct SRTextPlaceArea
 			ToPlace = Place0;
 		}
 	}
+
+	bool IsRange(SRTextPlace Place)
+	{
+		return FromPlace < Place && Place < ToPlace;
+	}
 };
 
 class FRTextContainer
@@ -81,16 +86,18 @@ private:
 
 public:
 	FRTextContainer(FRFontSet* FontSet);
-	void SetText(wstring Text);	
-	uint GetLineNumber(uint PositionY) const;
+	void SetText(wstring Text);
+	wstring GetText() const;
+	uint GetLineNumber(int PositionY) const;
 	uint GetLineCount() const { return Lines.size(); }
 	uint GetLineHeight() const { return LineHeight; }
 	uint GetLineWidth(uint Line) const;
 	uint GetLineBetweenWidth(SRTextPlace Start, uint Offset) const;
 	uint GetLineFormerWidth(SRTextPlace Place) const;
 	uint GetLineLatterWidth(SRTextPlace Place) const;	
-	uint GetLetterNumber(uint Line, uint PositionX) const;
+	uint GetLetterNumber(uint Line, int PositionX) const;
 	uint GetLetterCount(uint Line) const { return Lines[Line].size(); }	
+	uint GetFontSize() const { return FontSet->GetFontType().Size; }
 	int2 GetLetterPosition(SRTextPlace Place) const;	
 	SRTextPlace GetTextPlace(int2 Position) const;	
 	SRTextPlace InsertLetter(SRTextPlace Place, wchar_t Letter);
@@ -98,7 +105,8 @@ public:
 	SRTextPlace DeleteLetter(SRTextPlace Place);
 	SRTextPlace DeleteLettersBetween(SRTextPlaceArea Area);
 	SRTextPlace LinkPreviusLine(uint Line);
+	SRTextPlace DragAndDropText(SRTextPlaceArea Area, SRTextPlace DragTo);
 	vector<vector<FRFontLetter*>> const& GetLines() const { return Lines; }
-	void SetLineOffset(uint _StartLine) { _StartLine = StartLine; }
+	void SetLineOffset(uint InStartLine) { StartLine = InStartLine; }
 	uint GetLineOffset() const { return StartLine; }
 };

@@ -2,20 +2,15 @@
 
 struct SLocation
 {
-	SLocation()
-	{
-	}
-
-	SLocation(int Line, int IndexOfLine, int Index, int Lenght = 0)
-		: Line(Line), IndexOfLine(IndexOfLine), Index(Index), Length(Length)
-	{
-	}
-
 	int Line;
 	int Index;
 	int IndexOfLine;
 	int Length;
-	
+
+	SLocation() {}
+	SLocation(int Line, int IndexOfLine, int Index, int Lenght = 0)
+		: Line(Line), IndexOfLine(IndexOfLine), Index(Index), Length(Length) {}
+
 	static SLocation Between(SLocation a, SLocation b)
 	{
 		return SLocation(a.Line, a.IndexOfLine, a.Index, b.Index - a.Index + b.Length);
@@ -24,26 +19,21 @@ struct SLocation
 
 struct SError
 {
-	SError(SLocation InLocation, string msg)
-		:Location(InLocation), Messeage(msg)
-	{
-	}
-
 	string Messeage;
 	SLocation Location;
+
+	SError(SLocation Location, string Messeage)
+		:Location(Location), Messeage(Messeage) {}
 };
 
 enum class EAnnotator
 {
-	Empty, Identifier, Integer, Symbol, Decimal, String, Char, Operetor, Error, End, Boolean, Any
+	Empty, Identifier, Integer, Symbol, Decimal, String, Char, Operetor, Boolean, Any, Error
 };
 
 struct SToken
 {
-	SToken()
-		: Annotator(EAnnotator::Empty)
-	{
-	}
+	SToken() : Annotator(EAnnotator::Empty) {}
 
 	SToken(char* InString, EAnnotator InAnnotator, SLocation InLocation)
 	{
@@ -89,14 +79,16 @@ struct SToken
 
 struct SComment
 {
+	SComment() {}
+
 	SComment(char* InOpen, char* InEnd)
 	{
 		strcpy(Open, InOpen);
 		strcpy(End, InEnd);
 	}
 
-	char Open[4];
-	char End[4];
+	char Open[2];
+	char End[2];
 };
 
 struct SLexer
@@ -106,7 +98,8 @@ struct SLexer
 	char SpaceChars[32];
 	char StringEnclosed;
 	char CharEnclosed;
-	vector<SComment> Comments;
+	SComment Comment1;
+	SComment Comment2;
 	
 	static SLexer Default()
 	{
@@ -116,7 +109,8 @@ struct SLexer
 		strcpy(Result.SpaceChars, " \r\t\v\n\f");
 		Result.StringEnclosed = '"';
 		Result.CharEnclosed = '\'';
-		Result.Comments = vector<SComment>{ SComment("//", "\n"), SComment("/*", "*/") };
+		Result.Comment1 = SComment("//", "\n");
+		Result.Comment2 = SComment("/*", "*/");
 		return Result;
 	}
 
