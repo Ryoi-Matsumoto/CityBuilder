@@ -7,7 +7,6 @@ struct FFontGenerator
 {
 private:
 	HFONT HFont;
-	HFONT HOldFont;
 	HDC HDeviceContext;
 	TEXTMETRIC TextMetric;
 	GLYPHMETRICS GlyphMetrics;
@@ -20,6 +19,8 @@ public:
 	~FFontGenerator();
 	void SetLetter(wchar_t Letter);
 	
+	uint GetAscent() const { return TextMetric.tmAscent; }
+	uint GetDescent() const { return TextMetric.tmDescent; }
 	int2 GetOriginPoint() const;
 	int2 GetFontSize() const;
 	int2 GetFontRegion() const;

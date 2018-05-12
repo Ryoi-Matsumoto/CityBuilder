@@ -3,43 +3,49 @@
 FFontGenerator::FFontGenerator(const SRFontType& FontType)
 	: FontType(FontType)
 {
-	LOGFONTA Desc = { 0 };
-	memcpy(Desc.lfFaceName, &FontType.Family[0], sizeof(char) * FontType.Family.size());
+	// windows scores the fonts by weighting the match of each font setting element,
+	// and selects the font with the highest score.
+	// for exsample, if the specified name font does not match the specified charset or pitch,
+	// windows selects the substitute font.
+	// therefore, when you specify a font, you have to check the charset or pitch exists in the font
+	// with using notepad's font setting wizard and so on.
 	HDeviceContext = GetDC(nullptr);
+	LOGFONTA Desc = { 0 };
+	strcpy(Desc.lfFaceName, FontType.Family.data());   // 10000 points
+	Desc.lfCharSet = ANSI_CHARSET;	           // 65000 points
+	Desc.lfOutPrecision = OUT_DEFAULT_PRECIS;	   // 19000 points
+	Desc.lfPitchAndFamily = DEFAULT_PITCH | FF_DONTCARE; // FixedPitch:15000, Family:9000 points
 	Desc.lfHeight = FontType.Size;
-	Desc.lfWidth = 0;		   // 平均文字幅 	
-	Desc.lfEscapement = 0;     // 文字送り方向の角度 
-	Desc.lfOrientation = 0;    // ベースラインの角度	
+	Desc.lfWidth = 0;          // average width
+	Desc.lfEscapement = 0;     // character feed angle
+	Desc.lfOrientation = 0;    // baseline angle
 	Desc.lfItalic = FontType.Itaric;
 	Desc.lfUnderline = FontType.Underline;
 	Desc.lfStrikeOut = FontType.StrikeOut;
 	Desc.lfWeight = (LONG)FontType.Weight;
-	Desc.lfCharSet = SHIFTJIS_CHARSET; // 文字セットの識別子 
-	Desc.lfOutPrecision = OUT_DEFAULT_PRECIS; // 出力精度 
-	Desc.lfClipPrecision = CLIP_DEFAULT_PRECIS;	// クリッピング精度 
-	Desc.lfQuality = PROOF_QUALITY;	// 出力品質 
-	Desc.lfPitchAndFamily = FIXED_PITCH | FF_MODERN;  // ピッチとファミリ  
+	Desc.lfClipPrecision = CLIP_DEFAULT_PRECIS;
+	Desc.lfQuality = PROOF_QUALITY;
 	HFont = CreateFontIndirectA(&Desc);
-	HOldFont = (HFONT)SelectObject(HDeviceContext, HFont);
+	SelectObject(HDeviceContext, HFont);
+	GetTextMetricsW(HDeviceContext, &TextMetric);
 }
 
 FFontGenerator::~FFontGenerator()
 {
-	SelectObject(HDeviceContext, HOldFont);
 	DeleteObject(HFont);
 	ReleaseDC(nullptr, HDeviceContext);
 }
 
 void FFontGenerator::SetLetter(wchar_t Letter)
 {
-	GetTextMetricsW(HDeviceContext, &TextMetric);
-	int GradFlag = GGO_GRAY2_BITMAP;
+	SelectObject(HDeviceContext, HFont);
+	int GradFlag = GGO_GRAY8_BITMAP;
 	CONST MAT2 Matrix = { { 0,1 },{ 0,0 },{ 0,0 },{ 0,1 } };
 	uint Size = GetGlyphOutlineW(HDeviceContext, (uint)Letter, GradFlag, &GlyphMetrics, 0, 0, &Matrix);
 	Bitmap.resize(Size);
 	if (Size > 0)
 	{		
-		GetGlyphOutlineW(HDeviceContext, (uint)Letter, GradFlag, &GlyphMetrics, Size, &Bitmap[0], &Matrix);
+		GetGlyphOutlineW(HDeviceContext, (uint)Letter, GradFlag, &GlyphMetrics, Size, Bitmap.data(), &Matrix);
 
 		Grad = 16;
 		switch (GradFlag)
@@ -57,7 +63,7 @@ int2 FFontGenerator::GetOriginPoint() const
 	return int2
 	(
 		GlyphMetrics.gmptGlyphOrigin.x,
-		-GlyphMetrics.gmptGlyphOrigin.y
+		TextMetric.tmHeight - GlyphMetrics.gmptGlyphOrigin.y
 	);
 }
 
@@ -82,5 +88,5 @@ int2 FFontGenerator::GetFontRegion() const
 const BYTE* FFontGenerator::GetBitmap() const 
 { 
 	if (Bitmap.size() == 0)return nullptr;
-	return &Bitmap[0]; 
+	return Bitmap.data();
 }

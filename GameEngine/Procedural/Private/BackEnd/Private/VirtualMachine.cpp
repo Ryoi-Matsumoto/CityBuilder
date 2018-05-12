@@ -51,7 +51,7 @@ bool FVirtualMachine::Instruct(const SInstruction& Ins)
 		Ins.Type.Insert(Address + Ins.Operand0, Address + Ins.Operand1, Ins.Operand2);
 		break;
 	case EInstruction::LOAD:
-		memcpy(Address + Ins.Operand0, &Intermediate->Data[0] + Ins.Operand1, Ins.Type.GetSize());
+		memcpy(Address + Ins.Operand0, Intermediate->Data.data() + Ins.Operand1, Ins.Type.GetSize());
 		break;
 	case EInstruction::STOREA:
 	case EInstruction::STORER:

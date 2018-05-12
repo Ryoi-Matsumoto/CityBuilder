@@ -25,16 +25,15 @@ FDX11Viewport::FDX11Viewport(ID3D11Device* Device, DXGI_SAMPLE_DESC SampleDesc, 
 
 	// スワップチェーンを正しく作成するには、デバイスの作成に使用されたIDXGIFactoryを使用する必要がある。
 	// CreateDXGIFactoryを呼び出して別のIDXGIFactoryインスタンスを使用することはできない。
-	IDXGIDevice* DxgiDevice = 0;
-	HR(Device->QueryInterface(__uuidof(IDXGIDevice), (void **)&DxgiDevice));
+	IDXGIDevice* DxgiDevice;
+	HR(Device->QueryInterface(__uuidof(IDXGIDevice), (void**)&DxgiDevice));
 
-	IDXGIAdapter* DxgiAdapter = nullptr;
+	IDXGIAdapter* DxgiAdapter;
 	HR(DxgiDevice->GetAdapter(&DxgiAdapter));
 
-	IDXGIFactory* DxgiFactory = nullptr;
+	IDXGIFactory* DxgiFactory;
 	HR(DxgiAdapter->GetParent(__uuidof(IDXGIFactory), (void**)&DxgiFactory));
 
-	IDXGISwapChain *mSwapChain = nullptr;
 	HR(DxgiFactory->CreateSwapChain(Device, &Desc, &SwapChain));
 	
 	DxgiDevice->Release();
@@ -49,10 +48,22 @@ FDX11Viewport::~FDX11Viewport()
 	SwapChain->Release();
 }
 
-void FDX11Viewport::Resize(int2 Size)
+void FDX11Viewport::Resize(int2 InSize)
 {
-	this->Size = Size;
-	HR(SwapChain->ResizeBuffers(1, Size.X, Size.Y, RenderTargetFormat, 0));
+	Size = InSize;
+
+	Context->OMSetRenderTargets(0, nullptr, nullptr);
+	//RenderTargetView->Release();
+	DXGI_SWAP_CHAIN_DESC Desc;
+	SwapChain->GetDesc(&Desc);
+
+	auto ModeDesc = Desc.BufferDesc;
+	ModeDesc.Width = Size.X;
+	ModeDesc.Height = Size.Y;
+	
+	//HR(SwapChain->ResizeTarget(&ModeDesc));
+	//HR(SwapChain->ResizeBuffers(Desc.BufferCount, Size.X, Size.Y, Desc.BufferDesc.Format, Desc.Flags));
+
 	InitializeRenderTargetView();
 }
 

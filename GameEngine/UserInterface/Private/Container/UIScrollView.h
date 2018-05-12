@@ -8,11 +8,20 @@ private:
 	SUIViewRange* Range;
 
 protected:
-	void OnInitialize(FUIApplication* Application) override;
-	void OnMouseWheel(int Delta, int2 MousePosition) override;
+	void OnInitialize() override;
+	void OnMouseWheel(int Delta, int2 MousePosition) override final;
 
 public:
 	FUIScrollView() {}
 
 	void SetViewRange(SUIViewRange* InRange) { Range = InRange; }
+};
+
+class FUIScrollable
+{
+protected:
+	SUIViewRange ViewRange;
+
+public:
+	SUIViewRange* GetViewRange() { return &ViewRange; }
 };

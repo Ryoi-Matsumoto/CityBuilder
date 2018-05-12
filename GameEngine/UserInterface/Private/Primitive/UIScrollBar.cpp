@@ -1,5 +1,4 @@
 #include "UIScrollBar.h"
-#include "..\Container\UIContainer.h"
 
 FUIScrollBar::FUIScrollBar() 
 	: TargetRange(nullptr)
@@ -21,7 +20,7 @@ void FUIScrollBar::OnRendering()
 	int2 BarSize = int2(Size.X, (float)TargetRange->RangeItemCount / ScrollableCount * Size.Y);
 	int2 BarPosition = int2(0, (float)TargetRange->TopItemIndex / ScrollableCount * Size.Y);
 	BarRectangle = intrect(BarPosition, BarSize);
-	Renderer->DrawRectangle(BarRectangle, GetWindow()->GetApplication()->GetColor(BarColor));
+	GetRenderer()->DrawRectangle(BarRectangle, GetApplication()->GetColor(BarColor));
 }
 
 void FUIScrollBar::OnMouseDown(EMouseButton Button, int2 MousePosition)
@@ -36,7 +35,8 @@ void FUIScrollBar::OnMouseDown(EMouseButton Button, int2 MousePosition)
 		}
 		else
 		{
-			float Standard = GetArea().Position.Y + GetArea().Size.Y / 2.0f;
+			auto Area = GetRenderingArea();
+			float Standard = Area.Position.Y + Area.Size.Y / 2.0f;
 			if (MousePosition.Y > Standard)
 				TargetRange->TopItemIndex = FMath::Max(0, TargetRange->TopItemIndex - TargetRange->RangeItemCount);
 			else

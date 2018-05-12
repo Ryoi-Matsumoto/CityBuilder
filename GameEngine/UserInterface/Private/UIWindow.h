@@ -3,9 +3,18 @@
 #include "UIApplication.h"
 #include "UIControl.h"
 
-enum class EWindowState
+enum class EUIWindowState
 {
 	Normal, Minimized, Maximized, Hide
+};
+
+struct SUIWindowStartupState
+{
+	intrect Area;
+	EUIWindowState State;
+	wstring Title;
+
+	void Default();
 };
 
 class FUIWindow
@@ -15,21 +24,19 @@ private:
 	unique_ptr<class FUIControl> Content;
 	unique_ptr<FRViewport> Viewport;
 	HWND WindowHandle;
-
 	wstring Title;
-	EWindowState StartupState;
-	int2 StartupSize;
-	int2 StartupPosition;
+
 	bool IsTrakingMouseLeave;
 	
 public:
-	FUIWindow(FUIApplication* Application, unique_ptr<class FUIControl> Content);
+	FUIWindow(FUIApplication* Application, class FUIControl* Content, SUIWindowStartupState StartupState);
 
-	void ReceiveMessage(struct SUIWinAPIMessage const& Message);
+	LRESULT ReceiveMessage(struct SUIWinAPIMessage const& Message);
 	FUIApplication* GetApplication() const { return Application; }
 	FRViewport* GetViewport() const { return Viewport.get(); }
 	class FUIControl* GetContent() const { return Content.get(); }
 	HWND__* GetWindowHandle() const { return WindowHandle; }
-
-	void SetTitle(wstring InTitle) { Title = InTitle; }
+	intrect GetWindowArea() const;
+	wstring GetTitle() const { return Title; }
+	void SetWindowState(EUIWindowState State) const;
 };

@@ -3,14 +3,14 @@
 #include "UIWindow.h"
 #include <Windows.h>
 
-vector<FUIWindow*> Windows;
+vector<unique_ptr<FUIWindow>> Windows;
 
 LRESULT CALLBACK WindowProc(HWND WindowHandle, uint Message, WPARAM WParameter, LPARAM LParameter)
 {
 	auto WindowIndex = GetWindowLongPtr(WindowHandle, GWLP_USERDATA);
 	if (WindowIndex < Windows.size())
 	{
-		auto Window = Windows[WindowIndex];
+		auto Window = Windows[WindowIndex].get();
 
 		if (Message == WM_DESTROY)
 		{
@@ -23,7 +23,9 @@ LRESULT CALLBACK WindowProc(HWND WindowHandle, uint Message, WPARAM WParameter, 
 			WinMessage.LParameter = max(LParameter, 0);
 			WinMessage.WParameter = WParameter;
 
-			Window->ReceiveMessage(WinMessage);
+			auto Result = Window->ReceiveMessage(WinMessage);
+			if (Result)
+				return Result;
 		}
 	}
 	return DefWindowProc(WindowHandle, Message, WParameter, LParameter);
@@ -40,12 +42,14 @@ FUIApplication::FUIApplication(HINSTANCE InstanceHandle, wstring const& Applicat
 	WindowClass.hInstance = InstanceHandle;
 	WindowClass.hCursor = LoadCursor(nullptr, IDC_ARROW);
 	WindowClass.hbrBackground = (HBRUSH)COLOR_WINDOW;
-	WindowClass.lpszClassName = &ApplicationName[0];
+	WindowClass.lpszClassName = ApplicationName.data();
 	RegisterClassEx(&WindowClass);
 
 	RenderingManager = make_unique<FRManager>();
 	
 	SRFontType FontType;
+	FontType.Family = "Menlo";
+	FontType.Size = 30;
 	DefaultFontSet = RenderingManager->GetFontSet(FontType);
 }
 
@@ -61,18 +65,24 @@ bool FUIApplication::Update()
 	return Message.message != WM_QUIT;
 }
 
-unique_ptr<FUIWindow> FUIApplication::CreateUIWindow(unique_ptr<FUIControl> Content)
+FUIWindow* FUIApplication::CreateUIWindow(FUIControl* Content, SUIWindowStartupState StartupState)
 {
-	auto Window = make_unique<FUIWindow>(this, move(Content));
-	SetWindowLongPtr(Window->GetWindowHandle(), GWLP_USERDATA, Windows.size());
-	Windows.push_back(Window.get());
-	return Window;
+	auto Window = make_unique<FUIWindow>(this, Content, StartupState);
+	int WindowIndex = Windows.size();
+	SetWindowLongPtr(Window->GetWindowHandle(), GWLP_USERDATA, WindowIndex);
+	auto Result = Window.get();
+	Windows.push_back(move(Window));
+	return Result;
 }
 
 float4 FUIApplication::GetColor(EUIColorType Type) const
 {
 	switch (Type)
 	{
+	case EUIColorType::TabOnCursor:
+		return float4(0, 0, 0.8, 1);
+	case EUIColorType::TabButtonOnCursor:
+		return float4(0.5, 0.5, 0.8, 1);
 	case EUIColorType::Base:
 		return float4(0.15f, 1);
 	case EUIColorType::Selection:

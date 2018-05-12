@@ -8,7 +8,7 @@
 void Initialize##X##Y(FRHIDevice* Device) \
 { \
 	Shader##X##Y = Device->CreateShader(ERHIShaderType::##Y, \
-	FFileManager::ReadBinaryFile(BeginFilePass + (L#X L#Y) + EndFilePass)); \
+	FFileManager::ReadBinaryFile(BeginFilePass + (#X #Y) + EndFilePass)); \
 } \
 struct SRBuffer##X##Y; \
 unique_ptr<FRHIShader> Shader##X##Y; \
@@ -22,8 +22,8 @@ struct SRBuffer##X##Y {
 class FRShaderManager
 {
 private:
-	wstring BeginFilePass = L"Shaders/";
-	wstring EndFilePass = L".cso";
+	string BeginFilePass = "Shaders/";
+	string EndFilePass = ".cso";
 
 private:
 	template<typename TBuffer>

@@ -11,7 +11,7 @@ private:
 	int2 FontSize;
 
 private:
-	void OnInitialize(FUIApplication* Application) override;
+	void OnInitialize() override;
 	void OnRendering() override;
 
 public:

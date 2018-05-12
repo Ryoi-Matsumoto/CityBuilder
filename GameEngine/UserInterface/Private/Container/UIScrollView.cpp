@@ -1,8 +1,8 @@
 #include "UIScrollView.h"
 #include "..\Primitive\UIScrollBar.h"
-#include "..\Primitive\UITriangle.h"
+#include "..\Primitive\UIButton.h"
 
-void FUIScrollView::OnInitialize(FUIApplication* Application)
+void FUIScrollView::OnInitialize()
 {
 	assert(Content);
 
@@ -18,7 +18,6 @@ void FUIScrollView::OnInitialize(FUIApplication* Application)
 	Grid->AddYDefine(SUILenght(25));
 	Grid->SetMargin(SUIMargin(0, 8));
 	Grid->SetBackColor(EUIColorType::ScrollBack);
-
 	{
 		SUIActiveColor ButtonColor(EUIColorType::Scroll, EUIColorType::ScrollOnMouse, EUIColorType::ScrollOnClick);
 		

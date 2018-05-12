@@ -25,6 +25,9 @@ private:
 	bool IsDragging;
 	bool IsDragOk;
 
+public:
+	function<void(wstring)> OnTextChanged;
+
 private:
 	void UpdateSelectArea();
 	void UpdateAndCursorFlash();

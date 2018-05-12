@@ -1,7 +1,7 @@
 #include "../../Public/System/FileManager.h"
 #include <fstream>
 
-vector<char> FFileManager::ReadBinaryFile(wstring const& FileName)
+vector<char> FFileManager::ReadBinaryFile(string const& FileName)
 {
 	ifstream FileStream(FileName, ios::in | ios::binary);
 
@@ -10,21 +10,21 @@ vector<char> FFileManager::ReadBinaryFile(wstring const& FileName)
 	FileStream.seekg(0, ios_base::beg);
 
 	auto Result = vector<char>(Size);
-	FileStream.read(&Result[0], Size);
+	FileStream.read(Result.data(), Size);
 	FileStream.close();
 
 	return Result;
 }
 
-wstring FFileManager::ReadTextFile(wstring const& FileName)
+string FFileManager::ReadTextFile(string const& FileName)
 {
-	wifstream FileStream(FileName);
+	ifstream FileStream(FileName);
 
 	FileStream.seekg(0, ios_base::end);
 	int Size = (int)FileStream.tellg();
 	FileStream.seekg(0, ios_base::beg);
 
-	wstring Result;
+	string Result;
 	Result.resize(Size);
 	FileStream.read(&Result[0], Size);
 	FileStream.close();
@@ -32,9 +32,9 @@ wstring FFileManager::ReadTextFile(wstring const& FileName)
 	return Result;
 }
 
-void FFileManager::WriteTextFile(wstring const& FileName, wstring const& Content)
+void FFileManager::WriteTextFile(string const& FileName, string const& Content)
 {
-	wofstream FileStream(FileName, std::ios::trunc);
+	ofstream FileStream(FileName, std::ios::trunc);
 	FileStream << Content;
 	FileStream.close();
 }

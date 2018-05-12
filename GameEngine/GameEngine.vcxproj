@@ -223,6 +223,10 @@
     <ClInclude Include="Core\Public\Script\Lexer.h" />
     <ClInclude Include="Core\Public\Script\Parser.h" />
     <ClInclude Include="Core\Public\System\Debug.h" />
+    <ClInclude Include="Math\Header.h" />
+    <ClInclude Include="Math\Private\MMatch.h" />
+    <ClInclude Include="Math\Public\MExpression.h" />
+    <ClInclude Include="Math\Private\MValue.h" />
     <ClInclude Include="Procedural\Private\BackEnd\Public\VirtualMachine.h" />
     <ClInclude Include="Procedural\Private\BackEnd\Private\xbyak\xbyak.h" />
     <ClInclude Include="Procedural\Private\BackEnd\Private\xbyak\xbyak_bin2hex.h" />
@@ -265,15 +269,19 @@
     <ClInclude Include="Test\dropbox\json11.hpp" />
     <ClInclude Include="Test\Test.h" />
     <ClInclude Include="UserInterface\Private\Complex\UICodeEditor.h" />
-    <ClInclude Include="UserInterface\Private\Container\UIContainer.h" />
-    <ClInclude Include="UserInterface\Private\Primitive\UITriangle.h" />
+    <ClInclude Include="UserInterface\Private\Complex\UIWindowHeader.h" />
+    <ClInclude Include="UserInterface\Private\Dock\UISplitter.h" />
+    <ClInclude Include="UserInterface\Private\Dock\UIUpperTab.h" />
+    <ClInclude Include="UserInterface\Private\Dock\UIDockingPanel.h" />
+    <ClInclude Include="UserInterface\Private\Primitive\UIButton.h" />
+    <ClInclude Include="UserInterface\Private\Primitive\UIFormula.h" />
+    <ClInclude Include="UserInterface\Private\Primitive\UIFormulaParameter.h" />
     <ClInclude Include="UserInterface\Private\Primitive\UILineNumber.h" />
     <ClInclude Include="UserInterface\Private\Primitive\UIScrollBar.h" />
     <ClInclude Include="UserInterface\Private\Primitive\UITextBox.h" />
     <ClInclude Include="UserInterface\Private\UIApplication.h" />
     <ClInclude Include="UserInterface\Private\UIControl.h" />
     <ClInclude Include="UserInterface\Public\UICore.h" />
-    <ClInclude Include="UserInterface\Private\Container\UIButton.h" />
     <ClInclude Include="Rendering\Public\RTextContainer.h" />
     <ClInclude Include="UserInterface\Private\Container\UIScrollView.h" />
     <ClInclude Include="UserInterface\Private\Container\UIGrid.h" />
@@ -289,6 +297,15 @@
     <ClCompile Include="Core\Private\Script\Json.cpp" />
     <ClCompile Include="Core\Private\Script\Lexer.cpp" />
     <ClCompile Include="Core\Private\System\Dynamic.cpp" />
+    <None Include="Math\Private\Rule.txt">
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</DeploymentContent>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</DeploymentContent>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</DeploymentContent>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</DeploymentContent>
+    </None>
+    <ClCompile Include="Math\Private\MExpression.cpp" />
+    <ClCompile Include="Math\Private\MMatch.cpp" />
+    <ClCompile Include="Math\Private\MParser.cpp" />
     <ClCompile Include="Procedural\Private\BackEnd\Private\VirtualMachine.cpp" />
     <ClCompile Include="Procedural\Private\FrontEnd\Private\FrontEnd.cpp" />
     <ClCompile Include="Procedural\Private\FrontEnd\Private\Expression.cpp" />
@@ -310,7 +327,11 @@
     <ClCompile Include="Test\CoreTest.cpp" />
     <ClCompile Include="Test\dropbox\json11.cpp" />
     <ClCompile Include="UserInterface\Private\Complex\UICodeEditor.cpp" />
-    <ClCompile Include="UserInterface\Private\Container\UIContainer.cpp" />
+    <ClCompile Include="UserInterface\Private\Complex\UIWindowHeader.cpp" />
+    <ClCompile Include="UserInterface\Private\Dock\UIDockingPanel.cpp" />
+    <ClCompile Include="UserInterface\Private\Dock\UISplitter.cpp" />
+    <ClCompile Include="UserInterface\Private\Dock\UIUpperTab.cpp" />
+    <ClCompile Include="UserInterface\Private\Primitive\UIFormula.cpp" />
     <ClCompile Include="UserInterface\Private\Primitive\UILineNumber.cpp" />
     <ClCompile Include="UserInterface\Private\Primitive\UIScrollBar.cpp" />
     <ClCompile Include="UserInterface\Private\Container\UIScrollView.cpp" />
@@ -335,7 +356,6 @@
     <ClCompile Include="Rendering\Private\RTextBlock.cpp" />
     <ClCompile Include="Rendering\Private\RViewport.cpp" />
     <ClCompile Include="UserInterface\Private\Container\UIStackPanel.cpp" />
-    <ClCompile Include="UserInterface\Private\Container\UIButton.cpp" />
     <ClCompile Include="UserInterface\Private\UIControl.cpp" />
     <ClCompile Include="UserInterface\Private\Container\UIGrid.cpp" />
     <ClCompile Include="Rendering\Private\RTextContainer.cpp" />

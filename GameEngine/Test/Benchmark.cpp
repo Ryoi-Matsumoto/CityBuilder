@@ -74,6 +74,5 @@ void JsonBenchmark()
 	string ResultString = Stream.str();
 	MessageBoxA(nullptr, &ResultString[0], "", MB_OK);
 
-	wstring_convert<codecvt_utf8<wchar_t>, wchar_t> Conveter;
-	FFileManager::WriteTextFile(L"JsonBenchmark.txt", Conveter.from_bytes(ResultString));
+	FFileManager::WriteTextFile("JsonBenchmark.txt", ResultString);
 }

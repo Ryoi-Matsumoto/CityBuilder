@@ -130,7 +130,7 @@ SIntermediate GenerateIntermediate(string Source)
 	SIntermediate Result;
 
 	auto Lexer = SLexer::Default();
-	Lexer.Analyze(&Source[0]);
+	Lexer.Analyze(Source.data());
 	auto Statements = RootParse(GetStatementBlockParser(), move(Lexer.Tokens));
 
 	SCompilingData Data;

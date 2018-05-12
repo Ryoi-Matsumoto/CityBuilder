@@ -1,5 +1,5 @@
 #pragma once
-#include "UIContainer.h"
+#include "..\UIControl.h"
 
 struct SUILenght
 {		
@@ -22,14 +22,14 @@ struct SUILenght
 	}
 };
 
-class FUIGrid : public FUIContainer
+class FUIGrid : public FUIControl
 {
 private:
-	vector<SUILenght> XDefines; 
+	vector<SUILenght> XDefines;
 	vector<SUILenght> YDefines;
 
 private:
-	void OnAreaChanged() override;
+	void OnAreaChanged() override final;
 
 public:
 	void AddXDefine(SUILenght XDefine) { XDefines.push_back(XDefine); }

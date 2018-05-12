@@ -95,9 +95,9 @@ auto CreateInputLayout(ID3D11Device* Device, ID3D11ShaderReflection* Reflection,
 
 	HR(Device->CreateInputLayout
 	(
-		&InputElementDescs[0],
+		InputElementDescs.data(),
 		InputElementDescs.size(),
-		&Binary[0],
+		Binary.data(),
 		Binary.size(),
 		&Result
 	));
@@ -165,7 +165,7 @@ FDX11Shader::FDX11Shader(ID3D11Device* Device, ERHIShaderType ShaderType, vector
 	Device->GetImmediateContext(&Context);
 
 	ID3D11ShaderReflection* Reflection;
-	HR(D3DReflect(&Binary[0], Binary.size(), IID_ID3D11ShaderReflection, (void**)&Reflection));
+	HR(D3DReflect(Binary.data(), Binary.size(), IID_ID3D11ShaderReflection, (void**)&Reflection));
 	
 	D3D11_SHADER_DESC ShaderDesc;
 	HR(Reflection->GetDesc(&ShaderDesc));
@@ -177,10 +177,10 @@ FDX11Shader::FDX11Shader(ID3D11Device* Device, ERHIShaderType ShaderType, vector
 	{
 	case ERHIShaderType::Vertex:
 		InputLayout = CreateInputLayout(Device, Reflection, ShaderDesc, Binary);
-		HR(Device->CreateVertexShader(&Binary[0], Binary.size(), nullptr, &VertexShader));	
+		HR(Device->CreateVertexShader(Binary.data(), Binary.size(), nullptr, &VertexShader));
 		break;
 	case ERHIShaderType::Pixel:
-		HR(Device->CreatePixelShader(&Binary[0], Binary.size(), nullptr, &PixelShader));
+		HR(Device->CreatePixelShader(Binary.data(), Binary.size(), nullptr, &PixelShader));
 		break;
 	default:
 		FDebugger::OutputError(L"ShaderType is wrong.");
@@ -195,19 +195,13 @@ FDX11Shader::~FDX11Shader()
 	Shader->Release();
 
 	if (InputLayout)
-	{
 		InputLayout->Release();
-	}
 
 	for (auto ContextBuffer : ConstantBuffers)
-	{
 		ContextBuffer->Release();
-	}
 
 	for (auto ShaderResource : ShaderResources)
-	{
 		ShaderResource->Release();
-	}
 }
 
 void FDX11Shader::SetBuffer(uint Index, const void* Buffer)
@@ -235,13 +229,13 @@ void FDX11Shader::Apply()
 	{
 	case ERHIShaderType::Vertex:
 		Context->IASetInputLayout(InputLayout);
-		Context->VSSetConstantBuffers(0, ConstantBuffers.size(), &ConstantBuffers[0]);
-		if(ShaderResources.size() > 0)Context->VSSetShaderResources(0, ShaderResources.size(), &ShaderResources[0]);
+		Context->VSSetConstantBuffers(0, ConstantBuffers.size(), ConstantBuffers.data());
+		if(ShaderResources.size() > 0)Context->VSSetShaderResources(0, ShaderResources.size(), ShaderResources.data());
 		Context->VSSetShader(VertexShader, nullptr, 0);
 		break;
 	case ERHIShaderType::Pixel:
-		Context->PSSetConstantBuffers(0, ConstantBuffers.size(), &ConstantBuffers[0]);
-		if (ShaderResources.size() > 0)Context->PSSetShaderResources(0, ShaderResources.size(), &ShaderResources[0]);
+		Context->PSSetConstantBuffers(0, ConstantBuffers.size(), ConstantBuffers.data());
+		if (ShaderResources.size() > 0)Context->PSSetShaderResources(0, ShaderResources.size(), ShaderResources.data());
 		Context->PSSetShader(PixelShader, nullptr, 0);
 		break;
 	}

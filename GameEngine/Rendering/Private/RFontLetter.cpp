@@ -25,25 +25,25 @@ FRFontLetter::FRFontLetter(FRHIDevice* Device, FFontGenerator* FontGenerator, wc
 	if (Letter == L' ')
 	{
 		IsBrank = true;
-		FontRegion = int2(Size / 2, Size);
+		FontSize = int2(Size / 2, Size);
 	}
 	else if (Letter == L'@')
 	{
 		IsBrank = true;
-		FontRegion = int2(Size, Size);
+		FontSize = int2(Size, Size);
 	}
 	else if (Letter == L'\t')
 	{
 		IsBrank = true;
-		FontRegion = int2(Size * 2, Size);
+		FontSize = int2(Size * 2, Size);
 	}
 	else
 	{
 		FontGenerator->SetLetter(Letter);
 
 		OriginPoint = FontGenerator->GetOriginPoint();
-		FontSize = FontGenerator->GetFontSize();
-		FontRegion = FontGenerator->GetFontRegion();
+		BlackBoxSize = FontGenerator->GetFontSize();
+		FontSize = FontGenerator->GetFontRegion();
 		uint Grad = FontGenerator->GetGrad();
 		auto Bitmap = FontGenerator->GetBitmap();
 
@@ -51,25 +51,26 @@ FRFontLetter::FRFontLetter(FRHIDevice* Device, FFontGenerator* FontGenerator, wc
 		{
 			TextureSize = int2
 			(
-				pow(2, (int)log2(FontSize.X) + 1),
-				pow(2, (int)log2(FontSize.Y) + 1)
+				pow(2, (int)log2(BlackBoxSize.X) + 1),
+				pow(2, (int)log2(BlackBoxSize.Y) + 1)
 			);
 			Texture = Device->CreateTexture(ERHITextureType::Writeable, TextureSize);
 
 			uint RowSize;
 			auto Data = (DWORD*)Texture->Map(&RowSize);
 			ZeroMemory(Data, RowSize * TextureSize.Y);
-			WriteFontBitmap(Data, RowSize, &Bitmap[0], FontSize, Grad);
+			WriteFontBitmap(Data, RowSize, &Bitmap[0], BlackBoxSize, Grad);
 			Texture->Unmap();
 		}
 	}
 }
 
-void FRFontLetter::Render(FR2DRenderer* Renderer, int2 Position, float4 Color) const
+void FRFontLetter::Render(FR2DRenderer* Renderer, int2 Position, float4 Color, float2 Scale) const
 {
 	if (Texture)
 	{
-		Renderer->DrawTexture(Texture.get(), intrect(OriginPoint + Position, TextureSize), Color);
+		intrect Area(OriginPoint + Position, (TextureSize.ToVector() * Scale).ToInt());
+		Renderer->DrawTexture(Texture.get(), Area, Color);
 	}
 }
 
@@ -82,6 +83,16 @@ FRFontSet::FRFontSet(FRHIDevice* Device, const SRFontType& FontType)
 
 FRFontSet::~FRFontSet()
 {
+}
+
+uint FRFontSet::GetAscent() const 
+{ 
+	return FontGenerator->GetAscent(); 
+}
+
+uint FRFontSet::GetDescent() const 
+{ 
+	return FontGenerator->GetDescent();
 }
 
 FRFontLetter* FRFontSet::GetFontLetter(wchar_t Letter)
@@ -100,7 +111,7 @@ FRFontLetter* FRFontSet::GetFontLetter(wchar_t Letter)
 	return FontLetter;
 }
 
-FRFontSet* FRFontManager::GetFontSet(const SRFontType& FontType)
+FRFontSet* FRFontManager::GetFontSet(SRFontType const& FontType)
 {
 	auto FontTypeEx = SRFontTypeEx(FontType);
 	

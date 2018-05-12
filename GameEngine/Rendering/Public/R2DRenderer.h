@@ -3,7 +3,7 @@
 class FR2DObject
 {
 public:
-	virtual void Render(class FR2DRenderer* Renderer, int2 Position, float4 Color) const = 0;
+	virtual void Render(class FR2DRenderer* Renderer, int2 Position, float4 Color, float2 Scale) const = 0;
 	virtual uint GetWidth() const = 0;
 	virtual uint GetHeight() const = 0;
 };

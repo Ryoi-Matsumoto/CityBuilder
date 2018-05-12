@@ -14,12 +14,28 @@ void SLexer::Analyze(const char* Source)
 		switch (Stock.Annotator)
 		{
 		case EAnnotator::String:
-			if(IsStringSymbol)
+			if (IsStringSymbol)
+			{
+				Stock.Annotator = EAnnotator::Error;
 				Errors.push_back(SError(Stock.Location, "終わりの\"がありません。"));
+			}
 			break;
 		case EAnnotator::Char:
-			if(IsCharSymbol)
+			if (IsCharSymbol)
+			{
+				Stock.Annotator = EAnnotator::Error;
 				Errors.push_back(SError(Stock.Location, "終わりの'がありません。"));
+			}
+			break;
+		case EAnnotator::Integer:
+		case EAnnotator::Decimal:
+			/*
+			if (Stock.Location.Length > 9)
+			{
+				Stock.Annotator = EAnnotator::Error;
+				Errors.push_back(SError(Stock.Location, "数値が長すぎます。"));
+			}
+			*/
 			break;
 		}
 		Tokens.push_back(Stock);

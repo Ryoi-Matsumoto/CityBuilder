@@ -22,8 +22,8 @@ enum class ERFontWeight
 struct SRFontType
 {
 	SRFontType()
-		: Size(30)
-		, Family(L"ＭＳ Ｐゴシック")
+		: Size(28)
+		, Family("ＭＳ Ｐゴシック")
 		, Itaric(false)
 		, Underline(false)
 		, StrikeOut(false)
@@ -32,14 +32,12 @@ struct SRFontType
 	}
 
 	int Size;
-	wstring Family;
+	string Family;
 	bool Itaric;
 	bool Underline;
 	bool StrikeOut;
 	ERFontWeight Weight;
 };
-
-using CRRFontType = const SRFontType&;
 
 class FRHITexture;
 class FFontGenerator;
@@ -50,8 +48,8 @@ private:
 	unique_ptr<FRHITexture> Texture;
 	Matrix WorldMatrix;
 	int2 OriginPoint;
-	int2 FontSize; // フォントピクセルのサイズ
-	int2 FontRegion; // 余白を含めたサイズ
+	int2 BlackBoxSize; 
+	int2 FontSize;
 	int2 TextureSize;
 	wchar_t Letter;
 	bool IsBrank = false;
@@ -59,9 +57,11 @@ private:
 public:
 	FRFontLetter(class FRHIDevice* Device, FFontGenerator* FontGenerator, wchar_t Letter);
 
-	void Render(FR2DRenderer* Renderer, int2 Position, float4 Color) const override;
-	uint GetWidth() const override { return FontRegion.X; }
-	uint GetHeight() const override { return FontRegion.Y; }
+	void Render(FR2DRenderer* Renderer, int2 Position, float4 Color, float2 Scale = 1) const override;
+	uint GetWidth() const override { return FontSize.X; }
+	uint GetHeight() const override { return FontSize.Y; }
+	int2 GetOriginPoint() const { return OriginPoint; }
+	int2 GetBlackBoxSize() const { return BlackBoxSize; }
 	wchar_t GetLetter() const { return Letter; }
 };
 
@@ -76,9 +76,11 @@ private:
 	map<wchar_t, unique_ptr<FRFontLetter>> FontLetters;
 
 public:
-	FRFontSet(class FRHIDevice* Device, CRRFontType FontType);
+	FRFontSet(class FRHIDevice* Device, SRFontType const& FontType);
 	~FRFontSet();
 
+	uint GetAscent() const;
+	uint GetDescent() const;
 	FRFontLetter* GetFontLetter(wchar_t Letter);
 	SRFontType GetFontType() const { return FontType; }
 };
@@ -102,5 +104,5 @@ public:
 	{
 	}
 
-	FRFontSet* GetFontSet(CRRFontType FontType);
+	FRFontSet* GetFontSet(const SRFontType& FontType);
 };

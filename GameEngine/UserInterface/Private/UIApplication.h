@@ -7,7 +7,13 @@ class FUIControl;
 
 enum class EUIColorType
 {
-	Base, Selection, Font, Button, ButtonOnCursor, ButtonOnClick, ScrollBack, Scroll, ScrollOnMouse, ScrollOnClick, LineNumber
+	None, Base, Selection, TabOnCursor, TabButtonOnCursor, Font, Button, ButtonOnCursor, ButtonOnClick, ScrollBack, Scroll, ScrollOnMouse, ScrollOnClick, LineNumber
+};
+
+class FUIWindowHolder
+{
+public:
+	virtual FUIWindow* GetWindow() = 0;
 };
 
 class FUIApplication
@@ -16,12 +22,12 @@ private:
 	HINSTANCE InstanceHandle;
 	unique_ptr<FRManager> RenderingManager;
 	FRFontSet* DefaultFontSet;
-	wstring ApplicationName;		
+	wstring ApplicationName;	
 
 public:
 	FUIApplication(HINSTANCE InstanceHandle, wstring const& ApplicationName);
 	bool Update();
-	unique_ptr<FUIWindow> CreateUIWindow(unique_ptr<FUIControl> Content);
+	FUIWindow* CreateUIWindow(FUIControl* Content, struct SUIWindowStartupState StartupState);
 	FRManager* GetRenderingManager() const { return RenderingManager.get(); }	
 	FRFontSet* GetDefaultFontSet() const { return DefaultFontSet; }
 	HINSTANCE__* GetInstance() const { return InstanceHandle; }

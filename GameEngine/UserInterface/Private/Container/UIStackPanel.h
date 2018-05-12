@@ -1,22 +1,20 @@
 #pragma once
-#include "UIContainer.h"
+#include "..\UIControl.h"
 
-class FUIVerticalStackPanel : public FUIContainer
+class FUIVerticalStackPanel : public FUIControl
 {
 private:
-	void OnAreaChanged() override;
+	void OnAreaChanged() override final;
 
 public:
-	uint GetActualWidth() const override;
-	uint GetActualHeight() const override;
+	uint GetActualHeight() const override final;
 };
 
-class FUIHorizontalStackPanel : public FUIContainer
+class FUIHorizontalStackPanel : public FUIControl
 {
 private:
-	void OnAreaChanged() override;
+	void OnAreaChanged() override final;
 
 public:
-	uint GetActualWidth() const override;
-	uint GetActualHeight() const override;
+	uint GetActualWidth() const override final;
 };

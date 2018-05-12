@@ -62,7 +62,7 @@ struct SToken
 
 	SToken(string InString)
 	{
-		strcpy(String, &InString[0]);
+		strcpy(String, InString.data());
 		Location.Length = InString.size();
 	}
 
@@ -105,7 +105,7 @@ struct SLexer
 	{
 		SLexer Result;
 		strcpy(Result.Symbols, "{}()[];:,,");
-		strcpy(Result.Operetors, "+-*\<>=%");
+		strcpy(Result.Operetors, "+-*\<>=%^");
 		strcpy(Result.SpaceChars, " \r\t\v\n\f");
 		Result.StringEnclosed = '"';
 		Result.CharEnclosed = '\'';

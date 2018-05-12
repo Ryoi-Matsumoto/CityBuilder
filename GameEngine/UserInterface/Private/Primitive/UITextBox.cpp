@@ -46,6 +46,7 @@ FUITextBox::FUITextBox()
 	, IsMultiLine(true)
 	, IsDragging(false)
 	, IsSelectAreaDecided(false)
+	, OnTextChanged(nullptr)
 {
 }
 
@@ -98,7 +99,7 @@ void FUITextBox::OnRendering()
 		{
 			intrect NewRectangle = Rectangle;
 			NewRectangle.Position += Offset;
-			Renderer->DrawRectangle(NewRectangle, float4(0.1, 0.3, 1, 0.5));
+			GetRenderer()->DrawRectangle(NewRectangle, float4(0.1, 0.3, 1, 0.5));
 		}
 	}
 
@@ -108,7 +109,7 @@ void FUITextBox::OnRendering()
 		if (IsDragging && IsDragOk)
 			RenderingCursor = DragTo;
 		auto Area = intrect(TextBlock->GetLetterPosition(RenderingCursor), int2(3, TextBlock->GetLineHeight()));
-		Renderer->DrawRectangle(Area, float4(1));
+		GetRenderer()->DrawRectangle(Area, float4(1));
 	}
 
 	RegisterTimer(GetCaretBlinkTime());
@@ -183,7 +184,7 @@ void FUITextBox::OnKeyDown(wchar_t Key)
 		else if (Cursor.Line > 0)
 		{
 			Cursor.Line--;
-			Cursor.Letter = TextBlock->GetLetterCount(Cursor.Line) - 1;
+			Cursor.Letter = FMath::Max(TextBlock->GetLetterCount(Cursor.Line), 1) - 1;
 		}
 		UpdateAndCursorFlash();
 		break;
@@ -238,16 +239,18 @@ void FUITextBox::OnCharInputed(wchar_t Char)
 	if (IsTextSelected)
 		DeleteSelectedArea();
 	Cursor = TextBlock->InsertLetter(Cursor, Char);
+	if (OnTextChanged)
+		OnTextChanged(TextBlock->GetText());
 	UpdateAndCursorFlash();
 }
 
 void FUITextBox::OnMouseDown(EMouseButton Button, int2 MousePosition)
 {
-	// カーソルが選択範囲内のとき、ドラッグを開始する
+	// when the cursor is in the range of the selected area, start dragging 
 	if (IsTextSelected && IsSelectAreaDecided)
 		IsDragging = GetIsCursorInSelectArea(SelectAreaRectangles, MousePosition);
 
-	// ドラッグしていないとき、カーソルを移動する
+	// when not dragging, move the cursor
 	if (!IsDragging)
 	{
 		IsTextSelected = false;
@@ -285,14 +288,16 @@ void FUITextBox::OnMouseMove(int2 Position)
 
 	if (GetMouseButtonDown(EMouseButton::Left))
 	{	
-		if (IsDragging) // ドラッグ先を設定する
+		if (IsDragging)
 		{
+			// set the drag destination
 			DragTo = TextBlock->GetTextPlace(Position);
 			IsDragOk = !SRTextPlaceArea(Cursor, CursorSelectFrom).IsRange(DragTo);
 			ChangeCursor(IsDragOk ? IDC_UPARROW : IDC_NO);
 		}
-		else // テキストを選択する
+		else
 		{
+			// set the drag text
 			Cursor = TextBlock->GetTextPlace(Position);
 			IsTextSelected = CursorSelectFrom.Line != Cursor.Line || CursorSelectFrom.Letter != Cursor.Letter;
 			IsSelectAreaDecided = false;
@@ -315,8 +320,9 @@ void FUITextBox::OnDoubleClick(int2 MousePosition)
 	if (Cursor.Letter >= Line.size())
 		return;
 
+	// spread the selected area
 	auto TargetKind = GetLetterKind(Line[Cursor.Letter]->GetLetter());
-	
+
 	uint SelectStart = Cursor.Letter;
 	for (; SelectStart > 0; SelectStart--)
 	{
@@ -336,6 +342,7 @@ void FUITextBox::OnDoubleClick(int2 MousePosition)
 			break;
 	}
 
+	// when selecting text
 	if (Cursor.Letter > SelectStart || Cursor.Letter < SelectEnd)
 	{
 		CursorSelectFrom.Line = Cursor.Line;
@@ -354,7 +361,7 @@ void FUITextBox::OnTimer()
 	IsCursorVisible = IsCursorFlash;
 	Update();
 
-	// OnTimerにおける描画以外では常にカーソルを表示させる
+	// except when rendering in OnTimer, always show the cursor
 	IsCursorVisible = true;
 }
 
@@ -362,7 +369,7 @@ void FUITextBox::UpdateSelectArea()
 {
 	TopIndexOnCreateSelectAreaRectangles = ViewRange.TopItemIndex;
 
-	// 文字を入力しながら、選択範囲を削除するときに発生する範囲外エラーを修正
+	// correct out of range error that occurs when deleting selected text while typing
 	uint LineCount = TextBlock->GetLineCount();
 	CursorSelectFrom.Line = min(CursorSelectFrom.Line, LineCount - 1);
 	uint LetterCount = TextBlock->GetLetterCount(CursorSelectFrom.Line);
@@ -376,6 +383,7 @@ void FUITextBox::UpdateAndCursorFlash()
 {
 	IsCursorVisible = true;
 
+	// update the view range
 	int ViewableLineCount = GetRenderingSize().Y / TextBlock->GetLineHeight() - 1;
 	int ViewingLineCount = Cursor.Line - TextBlock->GetLineOffset();
 	if (ViewingLineCount > ViewableLineCount)
@@ -385,6 +393,7 @@ void FUITextBox::UpdateAndCursorFlash()
 
 	ViewRange.ItemCount = GetLineCount();
 
+	// render
 	if (GetBindControl())
 		GetBindControl()->Update();
 	else

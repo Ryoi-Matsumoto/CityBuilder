@@ -1,17 +1,17 @@
 #include "UICodeEditor.h"
 #include "..\Container\UIScrollView.h"
 #include "..\Primitive\UILineNumber.h"
-#include "..\Primitive\UITextBox.h"
 
-void FUICodeEditor::OnInitialize(FUIApplication* Application)
+FUICodeEditor::FUICodeEditor() : TextBox(new FUITextBox())
 {
-	FUITextBox* TextBox;
+}
 
+void FUICodeEditor::OnInitialize()
+{
 	auto Grid = new FUIGrid();
 	Grid->AddXDefine(SUILenght());
 	Grid->AddXDefine(SUILenght(1, true));
 	{
-		TextBox = new FUITextBox();
 		TextBox->SetXIndex(1);
 		TextBox->SetBindControl(this);
 
@@ -27,5 +27,5 @@ void FUICodeEditor::OnInitialize(FUIApplication* Application)
 	SetContent(Grid);
 	SetViewRange(TextBox->GetViewRange());
 
-	FUIScrollView::OnInitialize(Application);
+	FUIScrollView::OnInitialize();
 }

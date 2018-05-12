@@ -4,7 +4,7 @@
 class FFileManager
 {
 public:
-	static vector<char> ReadBinaryFile(wstring const& FileName);
-	static wstring ReadTextFile(wstring const& FileName);
-	static void WriteTextFile(wstring const& FileName, wstring const& Content);
+	static vector<char> ReadBinaryFile(string const& FileName);
+	static string ReadTextFile(string const& FileName);
+	static void WriteTextFile(string const& FileName, string const& Content);
 };

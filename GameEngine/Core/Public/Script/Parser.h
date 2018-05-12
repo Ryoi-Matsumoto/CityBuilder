@@ -151,6 +151,46 @@ struct SParserSplit
 	}
 };
 
+template<typename T, typename TSplitter, typename _TResult>
+struct SParserSplitCatenation
+{
+	_ParserOperator;
+	using TResult = _TResult;
+	static bool Parse(ParsedData& Data, TResult* Out)
+	{
+		int Backup = Data.Index;
+		TResult Results;
+		TResult::value_type Result;
+		TSplitter::TResult Dammy;
+
+		if (T::Parse(Data, &Result))
+			Out->push_back(Result);
+		else
+			return false;
+
+		while (Data.Index < Data.Tokens.size())
+		{
+			auto Index = Data.Index;
+			if (!TSplitter::Parse(Data, &Dammy))
+				break;
+			if (!T::Parse(Data, &Result))
+			{
+				Data.Index = Index;
+				break;
+			}
+			Out->push_back(Result);
+		}
+		
+		if (Out->size() == 1)
+		{
+			Data.Index = Backup;
+			return false;
+		}
+
+		return true;
+	}
+};
+
 template<typename T, typename _TResult>
 struct SParserAtLeastOnce
 {
@@ -512,6 +552,12 @@ template<typename T, typename TSplitter>
 inline auto Split(T Target, TSplitter Splitter)
 {
 	return SParserSplit<T, TSplitter, vector<T::TResult>>();
+}
+
+template<typename T, typename TSplitter>
+inline auto SplitCatenation(T Target, TSplitter Splitter)
+{
+	return SParserSplitCatenation<T, TSplitter, vector<T::TResult>>();
 }
 
 template<typename T>

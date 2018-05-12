@@ -71,7 +71,7 @@ int2 FRTextContainer::GetLetterPosition(SRTextPlace Place) const
 	int2 Position(0, LineHeight * 0.1f + LineHeight * (Place.Line - StartLine));
 
 	auto& CurrentLine = Lines[Place.Line];
-	for (int i = 0; i < Place.Letter; i++)
+	for (uint i = 0; i < Place.Letter; i++)
 		Position.X += CurrentLine[i]->GetWidth();
 	return Position;
 }
@@ -90,9 +90,9 @@ SRTextPlace FRTextContainer::InsertReturn(SRTextPlace Place)
 	auto& CurrentLine = Lines[Place.Line];
 	vector<FRFontLetter*> FormerLine, LatterLine;
 
-	for (int i = 0; i < Place.Letter; i++)
+	for (uint i = 0; i < Place.Letter; i++)
 		FormerLine.push_back(CurrentLine[i]);
-	for (int i = Place.Letter; i < CurrentLine.size(); i++)
+	for (uint i = Place.Letter; i < CurrentLine.size(); i++)
 		LatterLine.push_back(CurrentLine[i]);
 
 	Lines.erase(Lines.begin() + Place.Line);
@@ -136,7 +136,7 @@ SRTextPlace FRTextContainer::DeleteLettersBetween(SRTextPlaceArea Area)
 			LastLine.erase(LastLine.begin(), LastLine.begin() + Area.ToPlace.Letter);
 		}
 
-		for (int i, FirstLine = i = Area.FromPlace.Line + 1; i < Area.ToPlace.Line; i++)
+		for (uint i, FirstLine = i = Area.FromPlace.Line + 1; i < Area.ToPlace.Line; i++)
 			Lines.erase(Lines.begin() + FirstLine);
 
 		if (Area.FromPlace.Line < Lines.size() - 1)
@@ -150,7 +150,7 @@ SRTextPlace FRTextContainer::LinkPreviusLine(uint Line)
 	auto& CurrentLine = Lines[Line];
 	auto& PrevLine = Lines[Line - 1];
 	auto PrevLineSize = PrevLine.size();
-	for (int i = 0; i < CurrentLine.size(); i++)
+	for (uint i = 0; i < CurrentLine.size(); i++)
 	{
 		PrevLine.push_back(CurrentLine[i]);
 	}
@@ -161,14 +161,7 @@ SRTextPlace FRTextContainer::LinkPreviusLine(uint Line)
 	Place.Line = Line - 1;
 	return Place;
 }
-/*
-1111111aaaaaaaaaa
-bbbbbbbbbbbbbb
-ccccccccc111111111
-2222222222222
-33333333333333333
-aaaaaacccccc
-*/
+
 SRTextPlace FRTextContainer::DragAndDropText(SRTextPlaceArea Area, SRTextPlace DragTo)
 {
 	vector<FRFontLetter*> DraggedLetters;
@@ -202,20 +195,20 @@ void FRTextContainer::SetText(wstring Text)
 	}
 	else
 	{
-		vector<FRFontLetter*> Fontwchar_ts;
+		vector<FRFontLetter*> FontLetter;
 		for (auto Char : Text)
 		{
 			if (Char == L'\n')
 			{
-				Lines.push_back(Fontwchar_ts);
-				Fontwchar_ts.clear();
+				Lines.push_back(FontLetter);
+				FontLetter.clear();
 			}
 			else if (Char != L'\r')
 			{
-				Fontwchar_ts.push_back(FontSet->GetFontLetter(Char));
+				FontLetter.push_back(FontSet->GetFontLetter(Char));
 			}
 		}
-		Lines.push_back(Fontwchar_ts);
+		Lines.push_back(FontLetter);
 	}
 }
 

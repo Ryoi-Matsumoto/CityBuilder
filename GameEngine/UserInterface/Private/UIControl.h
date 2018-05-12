@@ -94,30 +94,50 @@ struct SUIActiveColor
 	}
 };
 
+template<typename T>
+class FUIFrame
+{
+protected:
+	T * Content;
+
+public:
+	FUIFrame() : Content(nullptr) {}
+
+	void SetContent(T* InContent) { Content = InContent; }
+};
+
 class FUIControl
 {
-	friend class FUIContainer;
 	friend class FUIGrid;
 
 private:
+	FUIControl* FocusedChild;
+	FUIControl* InRangeChild;
 	intrect Area;
+	bool IsInitialized;
+	bool IsAreaSetted;
+	bool IsVisible;
 
 protected:
-	class FUIWindow* Window;
-	class FUIContainer* Parent;
+	class FUIApplication* Application;
+	class FUIControl* Parent;
 	class FUIControl* BindControl;
+	class FUIWindow* Window;
 	bool MouseButtonStates[3];
-	FRManager* Renderer;
+	vector<unique_ptr<FUIControl>> Children;
 
 	uint XIndex;
 	uint YIndex;
 	SUIMargin Margin;
 	EUIColorType BackColor;
 
+private:
+	FUIControl* GetChildInRange(int2 Position);
+
 protected:
-	virtual void OnInitialize(FUIApplication* Application) {}
+	virtual void OnInitialize() {}
 	virtual void OnWindowChanged() {}
-	virtual void OnAreaChanged() {}	
+	virtual void OnAreaChanged() { for (auto& Child : Children) Child->SetArea(GetRenderingArea()); }
 	virtual void OnRendering() {}
 	virtual void OnKeyDown(wchar_t Key) {}
 	virtual void OnKeyUp(wchar_t Key) {}
@@ -131,37 +151,51 @@ protected:
 	virtual void OnGetFocus() {}
 	virtual void OnLostFocus() {}
 	virtual void OnTimer() {}
-	virtual uint GetActualHeight() const { return 100; }
-	virtual uint GetActualWidth() const { return 100; }
+	virtual uint GetActualHeight() const;
+	virtual uint GetActualWidth() const;
+	virtual bool GetIsClientArea() const { return true; }
 	int2 GetRenderingSize() const;
 	int2 GetRenderingPosition() const;
 	intrect GetRenderingArea() const { return intrect(GetRenderingPosition(), GetRenderingSize()); }
+	FRManager* GetRenderer() const { return Application->GetRenderingManager(); }
 
 	void ChangeCursor(LPCWSTR CursorType);
 	void RegisterTimer(uint Milliseconds);
 	bool GetMouseButtonDown(EMouseButton Button) const { return MouseButtonStates[(int)Button]; }
+	void ResetMouseButtonDown() const { memset((void*)MouseButtonStates, 0, sizeof(bool) * 3); }
 
 public:
 	FUIControl();
 
 	// これらの関数を呼び出すとOn～のイベント関数が呼び出される
-	virtual void Initialize(FUIApplication* Application);
-	virtual void SetWindow(class FUIWindow* Window);
-	virtual void SetArea(intrect Area);
-	virtual void ReceiveMessage(struct SUIWinAPIMessage const& Message);
-	virtual void Update();
-	uint GetHeight() const { return GetActualHeight() + Margin.Top + Margin.Bottom; }
-	uint GetWidth() const { return GetActualWidth() + Margin.Left + Margin.Right; }
+	void Initialize(FUIApplication* Application);
+	void SetArea(intrect Area);
+	LRESULT ReceiveMessage(struct SUIWinAPIMessage const& Message);
+	void Update();
+	void UpdateArea();
 
 	intrect GetArea() const { return Area; }
-	class FUIWindow* GetWindow() const { return Window; }
-	class FUIContainer* GetParent() const { return Parent; }
+	uint GetHeight() const { return GetActualHeight() + Margin.Top + Margin.Bottom; }
+	uint GetWidth() const { return GetActualWidth() + Margin.Left + Margin.Right; }
+	const vector<unique_ptr<FUIControl>>& GetChildren() const { return Children; }
 
+	bool GetIsInitialized() const { return IsInitialized; }
+	//intrect GetArea() const { return Area; }
+	class FUIControl* GetParent() const { return Parent; }
+	class FUIWindow* GetWindow() const { return Window ? Window : (Parent ? Parent->GetWindow() : nullptr); }
+
+	void AddChild(FUIControl* Child);
+	void RemoveChild(FUIControl* Child);
+	void SetOnlyChild(FUIControl* Child);
+
+	void SetWindow(class FUIWindow* InWindow) { Window = InWindow; }
 	void SetXIndex(uint InXIndex) { XIndex = InXIndex; }
 	void SetYIndex(uint InYIndex) { YIndex = InYIndex; }
 	void SetMargin(SUIMargin InMargin) { Margin = InMargin; }
 	void SetBackColor(EUIColorType InBackColor) { BackColor = InBackColor; }
+	void SetIsVisible(bool InIsVisible) { IsVisible = InIsVisible; }
 
 	void SetBindControl(FUIControl* InBindControl) { BindControl = InBindControl; }
-	FUIControl* GetBindControl() { return BindControl; }
+	FUIControl* GetBindControl() const { return BindControl; }
+	FUIApplication* GetApplication() const { return Application; }
 };

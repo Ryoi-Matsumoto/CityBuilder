@@ -25,7 +25,7 @@ struct SLiteral
 		return Literal;
 	}
 
-	void* GetPointer() const { return Vector.size() == 0 ? (void*)&Int : (void*)&Vector[0]; }
+	void* GetPointer() const { return Vector.size() == 0 ? (void*)&Int : (void*)Vector.data(); }
 };
 
 struct SVariable
