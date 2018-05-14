@@ -12,16 +12,18 @@ tan(-s)=-tan(s);
 sin(a+b)=sin(a)*cos(b)+cos(a)*sin(b);
 
 
-integral(log(a,x),x)=x*log(a,x)-x+C;
-integral(log(a,x)^n,x)=x*sigma(n,k,0,(-1)^k*P(n,k)*log(a,x)^(n-k)+C);
+int(log(a,x),x)=x*log(a,x)-x+C;
+int(log(a,x)^n,x)=x*sigma(n,k,0,(-1)^k*P(n,k)*log(a,x)^(n-k)+C);
 
-integral(a*x^n+d,x)=a*(1/(n+1))*x^(n+1)+integral(d,x);
-integral(a*x+d,x)=a*(1/2)*x^2+integral(d,x);
-integral(d,x)=0;
+int(0,x)=0;
+int(a*x^n+d,x)=a*(1/(n+1))*x^(n+1)+int(d,x) : n!=1;
+int(a*x+d,x)=a*(1/2)*x^2+int(d,x);
+int(d,x)=0;
+
 
 delta(a*x^n+d,x)=a*n*x*(n-1)+delta(d,x);
 
-integral(f*g,x)=integral(f,x)*g-integral(integral(f,x)*delta(g,x),x);
+int(f*g,x)=int(f,x)*g-int(int(f,x)*delta(g,x),x);
 log(a,1)=0;
 log(a,a)=1;
 log(a,n/m)=log(a,n)-log(a,m);
@@ -29,8 +31,8 @@ log(a,a*n)=1+log(a,n);
 log(a,n*m)=log(a,n)+log(a,m);
 log(a,n^r)=r*log(a,n);
 
-factorial(0)=1;
-factorial(n)=n*factorial(n-1);
+fact(0)=1;
+fact(n)=n*fact(n-1);
 
 x^2+(2+n)*x+2*n=(x+2)*(x+n);
 a*x^2+b*x+c=(-b+(b^2-4*a*c)^(1/2))/2*a;

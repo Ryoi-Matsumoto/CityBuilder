@@ -58,28 +58,41 @@ public:
 	string ToString() const;
 };
 
-class FMatchingTable
+enum class EInequalityType
+{
+	Less, Greater, LessEqual, GreaterEqual, NotEqual
+};
+
+struct SInequality
+{
+	EInequalityType Type;
+	FExpression Right;
+
+	SInequality() {}
+	SInequality(EInequalityType Type, FExpression const& Right) : Type(Type), Right(Right) {}
+};
+
+class FValueRange
 {
 private:
-	map<string, FExpression> Variables;
+	vector<SInequality> Conditions;
 
 public:
-	void SetVariable(string Name, FExpression Value) { Variables[Name] = Value; }
-	bool HasVariable(string Name) { return Variables.find(Name) != Variables.end(); }
-	FExpression GetVariable(string Name) { return Variables[Name]; }
-	bool MatchVariable(string Name, FExpression Value)
+	void AddCondition(SInequality const& Inequality)
 	{
-		auto Itr = Variables.find(Name);
-		if (Itr != Variables.end())
-		{
-			return Itr->second.Equals(Variables[Name]);
-		}
-		else
-		{
-			Variables[Name] = Value;
-			return true;
-		}
+		Conditions.push_back(Inequality);
 	}
+
+	bool Check(class FValue const& Value);
+};
+
+struct SVariableInequality
+{
+	string Variable;
+	SInequality Inequality;
+
+	SVariableInequality() {}
+	SVariableInequality(string Variable, SInequality Inequality) : Variable(Variable), Inequality(Inequality) {}
 };
 
 class FRule
@@ -87,13 +100,19 @@ class FRule
 private:
 	FExpression Before;
 	FExpression After;
+	map<string, FValueRange> VariableRanges;
 
 public:
 	FRule() {}
-	FRule(FExpression Before, FExpression After) : Before(Before), After(After) {}
+	FRule(FExpression Before, FExpression After, vector<SVariableInequality> Range) : Before(Before), After(After)
+	{
+		for (auto& Range : Range)
+			VariableRanges[Range.Variable].AddCondition(Range.Inequality);
+	}
 
-	FExpression GetBefore() const { return Before; }
-	FExpression GetAfter() const { return After; }
+	const FExpression& GetBefore() const { return Before; }
+	const FExpression& GetAfter() const { return After; }
+	const map<string, FValueRange>& GetVariableRanges() const { return VariableRanges; }
 };
 
 class FRuleTable
@@ -145,4 +164,19 @@ public:
 
 	const FExpression& GetExpression() const { return Expression; }
 	const vector<SProcess>& GetProcesses() const { return Processes; }
+};
+
+class FMatchingTable
+{
+private:
+	map<string, FValueRange> VariableRanges;
+	map<string, FExpression> Variables;
+
+public:
+	FMatchingTable(map<string, FValueRange> const& VariableRanges) : VariableRanges(VariableRanges) {}
+
+	void SetVariable(string Name, FExpression Value) { Variables[Name] = Value; }
+	bool HasVariable(string Name) { return Variables.find(Name) != Variables.end(); }
+	FExpression GetVariable(string Name) { return Variables[Name]; }
+	bool MatchVariable(string Name, FExpression Value);
 };

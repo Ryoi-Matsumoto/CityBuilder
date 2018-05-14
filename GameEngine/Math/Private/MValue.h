@@ -1,5 +1,4 @@
 #pragma once
-#include "..\Public\MExpression.h"
 
 class FValue
 {
@@ -52,8 +51,8 @@ public:
 			Denominator = 0;
 			return;
 		}
-		muint NewDenominator = lcm(Denominator, Value.Denominator);
-		mint NewNumerator = Numerator * (NewDenominator / Denominator);
+		auto NewDenominator = lcm(Denominator, Value.Denominator);
+		auto NewNumerator = Numerator * (NewDenominator / Denominator);
 		NewNumerator += Value.Numerator * (NewDenominator / Value.Denominator);
 		Denominator = NewDenominator;
 		Numerator = NewNumerator;
@@ -68,7 +67,7 @@ public:
 		}
 		Numerator *= Value.Numerator;
 		Denominator *= Value.Denominator;
-		muint Gcd = (muint)gcd(abs(Numerator), (mint)Denominator);
+		auto Gcd = (muint)gcd(abs(Numerator), (mint)Denominator);
 		Numerator /= Gcd;
 		Denominator /= Gcd;
 	}
@@ -123,6 +122,30 @@ public:
 			return Numerator.str() + "/" + Denominator.str();
 		else
 			return Numerator.str();
+	}
+
+	bool Compare(EInequalityType Type, FValue const& Value) const
+	{
+		// this type than type
+		auto NewDenominator = lcm(Denominator, Value.Denominator);
+		auto Left = Numerator * (NewDenominator / Denominator);
+		auto Right = Value.Numerator * (NewDenominator / Value.Denominator);
+		switch (Type)
+		{
+		case EInequalityType::Less:
+			return Left < Right;
+		case EInequalityType::Greater:
+			return Left > Right;
+		case EInequalityType::LessEqual:
+			return Left <= Right;
+		case EInequalityType::GreaterEqual:
+			return Left >= Right;
+		case EInequalityType::NotEqual:
+			return Left != Right;
+		default:
+			assert(false);
+			return false;
+		}
 	}
 };
 

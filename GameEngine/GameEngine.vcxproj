@@ -225,6 +225,7 @@
     <ClInclude Include="Core\Public\System\Debug.h" />
     <ClInclude Include="Math\Header.h" />
     <ClInclude Include="Math\Private\MMatch.h" />
+    <ClInclude Include="Math\Private\Range.h" />
     <ClInclude Include="Math\Public\MExpression.h" />
     <ClInclude Include="Math\Private\MValue.h" />
     <ClInclude Include="Procedural\Private\BackEnd\Public\VirtualMachine.h" />

@@ -18,13 +18,6 @@
 #define MATH_CALC
 
 #ifdef MATH_CALC
-void MathCalculate();
-
-void main2()
-{
-	MathCalculate();
-}
-
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
 {

@@ -10,7 +10,7 @@ bool FExpression::IsInteger() const
 bool FExpression::ApplyRule(FRule const& Rule, FExpression* Result) const
 {
 	auto Target = Rule.GetBefore();
-	FMatchingTable MatchingTable;
+	FMatchingTable MatchingTable(Rule.GetVariableRanges());
 
 	switch (Type)
 	{
@@ -310,7 +310,7 @@ bool FExpression::HasValue() const
 	return false;
 }
 
-class FValue FExpression::ToValue() const
+FValue FExpression::ToValue() const
 {
 	if (Type == EExpressionType::Constant)
 		return FValue(Value);
@@ -597,5 +597,35 @@ FRuleTable::FRuleTable(vector<FRule> InRules)
 			Rules[Rule.GetBefore().GetName()].emplace_back(Rule);
 		else
 			Rules[""].emplace_back(Rule);
+	}
+}
+
+bool FValueRange::Check(FValue const& Value)
+{
+	for (auto& Condition : Conditions)
+	{
+		if (!Value.Compare(Condition.Type, Condition.Right.ToValue()))
+			return false;
+	}
+	return true;
+}
+
+bool FMatchingTable::MatchVariable(string Name, FExpression Value)
+{
+	auto Itr = Variables.find(Name);
+	if (Itr != Variables.end())
+	{
+		return Itr->second.Equals(Value);
+	}
+	else
+	{
+		auto RangeItr = VariableRanges.find(Name);
+		if (RangeItr != VariableRanges.end())
+		{
+			if (!Value.HasValue() || !RangeItr->second.Check(Value.ToValue()))
+				return false;
+		}
+		Variables[Name] = Value;
+		return true;
 	}
 }
